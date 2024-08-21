@@ -1,5 +1,5 @@
 import re
-import tkinter as tk
+import tk
 
 class Proceso:  #clase de procesos o nodos
   #atributos
@@ -129,7 +129,7 @@ def main():
   nprocesos = nprocesos()
 
   procesos = []
-  for _ in range(numero_de_procesos):
+  for _ in range(nprocesos):
     proceso = Proceso(
       Proceso.getid(),
       Proceso.getNombre(),
