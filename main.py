@@ -67,8 +67,8 @@ class LL:  #clase de estructura de datos Linked list
     self.tail = None
 
   #métodos
-  def agregartail(self, n, nombre, operacion, tme):  #agregar al final
-    nuevoProceso = Proceso(n, nombre, operacion, tme)
+  def agregartail(self, Id, nombre, operacion, tme):  #agregar al final
+    nuevoProceso = Proceso(Id, nombre, operacion, tme)
     if self.tail is None:
         self.head = nuevoProceso
         self.tail = nuevoProceso
@@ -116,13 +116,33 @@ class Ventana():  #clase ventana
 
 def main():
   # Crear una instancia de la clase Proceso
-  proceso1 = Proceso(Proceso.getid(), Proceso.getNombre(), Proceso.getOperacion(), Proceso.getTME())
+  def nprocesos():
+    while True:
+      try:
+        n = int(input('\nIngrese el número de procesos -> '))
+        if n > 0:
+          return n
+        else:
+          print('\nDebe ingresar un número entero positivo')
+      except ValueError:
+        print('\nEntrada no válida. Por favor ingrese un número entero válido.')
+  nprocesos = nprocesos()
 
-  # Imprimir los atributos del proceso
-  print(f'Número de proceso: {proceso1.Id}')
-  print(f"Nombre del proceso: {proceso1.nombre}")
-  print(f"Resultado: {eval(proceso1.operacion)}")
-  print(f"Tiempo de ejecución: {proceso1.tme}")
+  procesos = []
+  for _ in range(numero_de_procesos):
+    proceso = Proceso(
+      Proceso.getid(),
+      Proceso.getNombre(),
+      Proceso.getOperacion(),
+      Proceso.getTME()
+    )
+    procesos.append(proceso)
+
+  # Imprimir los atributos del proceso prueba
+  # print(f'Número de proceso: {proceso1.Id}')
+  # print(f"Nombre del proceso: {proceso1.nombre}")
+  # print(f"Resultado: {eval(proceso1.operacion)}")
+  # print(f"Tiempo de ejecución: {proceso1.tme}")
 
 if __name__ == "__main__":
   main()
