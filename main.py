@@ -1,5 +1,6 @@
 import re
-import tk
+import tkinter as tk
+from tkinter import messagebox
 
 class Proceso:  #clase de procesos o nodos
   #atributos
@@ -11,7 +12,7 @@ class Proceso:  #clase de procesos o nodos
 
   #métodos
   @staticmethod
-  def getid():
+  def getId():
     while True:
       try:
         Id = int(input('\nIngrese el número de proceso -> '))
@@ -22,7 +23,6 @@ class Proceso:  #clase de procesos o nodos
       except ValueError:
         print('\nEntrada no valida. Por favor ingrese un número entero valido ')
 
-
   @staticmethod
   def getNombre():
     while True:
@@ -31,7 +31,6 @@ class Proceso:  #clase de procesos o nodos
         return nombre
       else:
         print('\nEl nombre no puede estar vacío, inténtalo de nuevo.')
-        
 
   @staticmethod
   def getOperacion():  
@@ -67,7 +66,7 @@ class LL:  #clase de estructura de datos Linked list
     self.tail = None
 
   #métodos
-  def agregartail(self, Id, nombre, operacion, tme):  #agregar al final
+  def agregarTail(self, Id, nombre, operacion, tme):  #agregar al final
     nuevoProceso = Proceso(Id, nombre, operacion, tme)
     if self.tail is None:
         self.head = nuevoProceso
@@ -76,14 +75,14 @@ class LL:  #clase de estructura de datos Linked list
         self.tail.next = nuevoProceso
         self.tail = nuevoProceso
 
-  def borrarhead(self):  #borrar el primero
+  def borrarHead(self):  #borrar el primero
     if self.head is None:
         return None
-    temp = self.head
+    temp = self.head 
     self.head = temp.next
     return temp
 
-  def peekfront(self):  #ver el primero
+  def peekFront(self):  #ver el primero
     return self.head
 
   def contar(self):  #contar los números de procesos
@@ -93,26 +92,46 @@ class LL:  #clase de estructura de datos Linked list
         temp = temp.next
         i += 1
     return i
+  
+  def mostrarLista(self):  #mostrar los procesos
+    temp = self.head
+    while temp != None:
+        print(f'Número de proceso: {temp.Id}')
+        print(f"Nombre del proceso: {temp.nombre}")
+        print(f"Resultado: {eval(temp.operacion)}")
+        print(f"Tiempo de ejecución: {temp.tme}")
+        temp = temp.next
 
+  def mostrarProceso(self, proceso):  #mostrar un proceso
+    print(f'Número de proceso: {proceso.Id}')
+    print(f"Nombre del proceso: {proceso.nombre}")
+    print(f"Resultado: {eval(proceso.operacion)}")
+    print(f"Tiempo de ejecución: {proceso.tme}")
+
+  def buscar(self,Id):
+    temp = self.head
+    while temp != None:
+      if temp.Id == Id:
+        return self.mostrarProceso(temp)
+      temp = temp.next
+    return None
 
 class Ventana():  #clase ventana
-  #atributos
+  #atributos para la clase ventana
   def __init__(self, ventana):
     self.ventana = ventana
-    self.ventana.geometry("1000x600")
+    self.ventana.geometry("600x600")
     self.ventana.title("Procesamiento por lotes")
-    self.cajaTexto = tk.Entry(ventana, borderwidth=4, width=10)
-    self.cajaTexto.grid(row=0, column=1)
-    self.tiempo = 0
-    self.relojglobal = tk.Label(ventana, text=f"Reloj Global: {self.tiempo}")
-    self.relojglobal.grid(row=0, column=4, padx=150)
-    self.lotesp = 0
-    self.pendientes = tk.Label(ventana, text=f"Número de Lotes pendientes: {self.lotesp}")
-    self.pendientes.grid(row=3, column=0, pady=10)
+    self.ventana.configure(bg="gray")
 
-  # métodos
+    Titulo = tk.Label(ventana, text="Procesamiento por lotes", font=("Arial", 20), bg="green", fg="white")
+    Titulo.pack(fill= tk.X)
+
+  # métodos para la clase ventana
   def print():
-     print('hola mundo')
+    pass
+
+
 
 def main():
   # Crear una instancia de la clase Proceso
@@ -126,23 +145,21 @@ def main():
           print('\nDebe ingresar un número entero positivo')
       except ValueError:
         print('\nEntrada no válida. Por favor ingrese un número entero válido.')
-  nprocesos = nprocesos()
+  
+  # for _ in range(nprocesos):
+  #   proceso = Proceso(
+  #     Proceso.getid(),
+  #     Proceso.getNombre(),
+  #     Proceso.getOperacion(),
+  #     Proceso.getTME()
+  #   )
+  #   procesos = []
+  #   procesos.append(proceso)
 
-  procesos = []
-  for _ in range(nprocesos):
-    proceso = Proceso(
-      Proceso.getid(),
-      Proceso.getNombre(),
-      Proceso.getOperacion(),
-      Proceso.getTME()
-    )
-    procesos.append(proceso)
+  ventana = tk.Tk()
+  app = Ventana(ventana)
+  ventana.mainloop()
 
-  # Imprimir los atributos del proceso prueba
-  # print(f'Número de proceso: {proceso1.Id}')
-  # print(f"Nombre del proceso: {proceso1.nombre}")
-  # print(f"Resultado: {eval(proceso1.operacion)}")
-  # print(f"Tiempo de ejecución: {proceso1.tme}")
 
 if __name__ == "__main__":
   main()
