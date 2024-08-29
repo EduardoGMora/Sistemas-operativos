@@ -1,8 +1,8 @@
 import re
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import simpledialog, messagebox
 
-class Proceso:  #clase de procesos o nodos
+class Procesos:  #clase de procesos o nodos
   #atributos
   def __init__(self, Id, nombre, operacion, tme):  
     self.Id = Id
@@ -67,7 +67,7 @@ class LL:  #clase de estructura de datos Linked list
 
   #métodos
   def agregarTail(self, Id, nombre, operacion, tme):  #agregar al final
-    nuevoProceso = Proceso(Id, nombre, operacion, tme)
+    nuevoProceso = Procesos(Id, nombre, operacion, tme)
     if self.tail is None:
         self.head = nuevoProceso
         self.tail = nuevoProceso
@@ -115,21 +115,22 @@ class LL:  #clase de estructura de datos Linked list
         return self.mostrarProceso(temp)
       temp = temp.next
     return None
-
-class Ventana():  #clase ventana
-  #atributos para la clase ventana
-  def __init__(self, ventana):
+  
+class Ventana:
+  def __init__(self, ventana, procesos):
     self.ventana = ventana
-    self.ventana.geometry("600x600")
+    self.ventana.geometry("800x600")
     self.ventana.title("Procesamiento por lotes")
-    self.ventana.configure(bg="gray")
 
-    Titulo = tk.Label(ventana, text="Procesamiento por lotes", font=("Arial", 20), bg="green", fg="white")
-    Titulo.pack(fill= tk.X)
+    self.titulo = tk.Label(ventana, text="Procesamiento por lotes", bg="lightblue",  font=("Arial", 20))
+    self.titulo.pack(fill=tk.X)
 
-  # métodos para la clase ventana
-  def print():
-    pass
+    self.lotestext = tk.Label(ventana, text="Número de lotes pendiente: ", font=("Arial", 12))
+    self.lotestext.place(x=10, y=50)
+
+    self.TMEtotal = tk.Label(ventana, text="Tiempo total de ejecución: ", font=("Arial", 12))
+    # abajo a la derecha
+    self.TMEtotal.pack(side=tk.BOTTOM)
 
 
 
@@ -157,7 +158,7 @@ def main():
   #   procesos.append(proceso)
 
   ventana = tk.Tk()
-  app = Ventana(ventana)
+  app = Ventana(ventana,2)
   ventana.mainloop()
 
 
