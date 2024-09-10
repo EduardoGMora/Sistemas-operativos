@@ -167,10 +167,10 @@ class Ventana:
     self.relojglobal = tk.Label(ventana, text=f"Reloj Global: {self.tiempo}")
     self.relojglobal.grid(row=0, column=4, padx=150)
     self.procesoactual = None
+    self.contador = 0
     self.lotes = self.listaEspera.hacerLotes()
-    self.lotesp = len(self.listaEspera.hacerLotes()) #lotes pendientes
-    self.lote_actual = 0  # Lote que estamos mostrando actualmente
-    self.pendientes = tk.Label(ventana, text=f"Número de Lotes pendientes: {self.lotesp}")
+    self.lotesp = len(self.lotes) #lotes pendientes
+    self.pendientes = tk.Label(ventana, text=f"Número de Lotes pendientes: { self.lotesp }")
     self.pendientes.grid(row=3, column=0, pady=10)
 
     #label
@@ -213,25 +213,27 @@ class Ventana:
   def actualizarEspera(self):  #actualiza la interfaz de espera
     texto = ""
 
-    # Obtener el lote actual
-    if self.lote_actual < len(self.lotes):
-      lote = self.lotes[self.lote_actual]
-      
-      if len(lote) > 0:
-        # Mostrar todos los procesos del lote actual
-        for proceso in lote:
-          texto += f'{proceso.Id}.- TME: {proceso.tme}\n\n'
+    # Verificar si aún hay lotes disponibles
+    if self.contador < len(self.lotes):
+      lote_actual = self.lotes[self.contador]  
 
-        # Mostrar cuántos procesos faltan
-        texto += f'\nProcesos faltantes del lote: {len(lote)}'
+        # Verificar si el lote actual tiene procesos
+      if len(lote_actual) > 0:
+        proceso = lote_actual.pop(0)
+        # Mostrar el proceso en la interfaz
+        for proceso in lote_actual:
+          texto += f'{proceso.Id}.- {proceso.nombre}\n {proceso.operacion}\n TME: {proceso.tme}\n\n'
+
+          # Mostrar cuántos procesos faltan en el lote actual
+        texto += f'\nProcesos faltantes del lote: {len(lote_actual)}'
       else:
-        self.lote_actual += 1  # Avanzar al siguiente lote si el actual está vacío
-        if self.lote_actual < len(self.lotes):
-          self.actualizarEspera()  # Llamar de nuevo para mostrar el siguiente lote
-          return
-        else:
-          texto = "No hay más procesos en espera."  # Mensaje cuando no hay más procesos
+        # Si el lote actual está vacío, avanzar al siguiente lote
+        self.contador += 1
+        self.actualizarEspera()  # Llamar recursivamente para actualizar el siguiente lote
+        self.actualizarLotes()
+        return
     else:
+      # Si no quedan más lotes, mostrar que no hay más procesos
       texto = "No hay más procesos en espera."
 
     # Actualizar la caja de texto para mostrar los procesos en espera
@@ -242,35 +244,25 @@ class Ventana:
 
   def actualizarEjecucion(self): #actualiza la interfaz de ejecución
     if self.procesoactual is not None:
-      self.procesoactual.tme -= 1  # Disminuir el TME en 1
+      self.procesoactual.tme -= 1  
       texto = f'{self.procesoactual.Id}.- {self.procesoactual.nombre} \n {self.procesoactual.operacion}\n TME: {self.procesoactual.tme}'
       
-      self.ejecucion.config(state=tk.NORMAL)  # Habilitar el widget para insertar texto
-      self.ejecucion.delete('1.0', tk.END)  # Borrar el contenido anterior
-      self.ejecucion.insert(tk.END, texto)  # Insertar el nuevo contenido
-      self.ejecucion.config(state=tk.DISABLED)  # Deshabilitar de nuevo para evitar edición
+      self.ejecucion.config(state=tk.NORMAL)  
+      self.ejecucion.delete('1.0', tk.END)  
+      self.ejecucion.insert(tk.END, texto)  
+      self.ejecucion.config(state=tk.DISABLED)  
 
       # Actualizar el reloj global
       self.tiempo += 1
       self.relojglobal.config(text=f"Reloj Global: {self.tiempo}")
       
       # Si el TME llega a 0, pasar al siguiente proceso
-      if self.procesoactual.tme <= 0:
+      if self.procesoactual.tme == 0:
         self.listaTerminados.agregarTail(self.procesoactual.Id, self.procesoactual.nombre, self.procesoactual.operacion, self.procesoactual.tme)
         self.actualizarTerminados()
         self.listaEspera.borrarHead()
-        self.actualizarEspera()
-
-        # Verificar si quedan procesos en el lote actual
-        lote_actual = self.lotes[self.lote_actual]
-        if len(lote_actual) == 0:
-          self.lote_actual += 1  # Avanzar al siguiente lote
-          if self.lote_actual >= len(self.lotes):
-            # Si no hay más lotes, detener la ejecución
-            self.procesoactual = None
-            return
-
         self.procesoactual = self.listaEspera.peekFront()
+        self.actualizarEspera()
 
       # Continuar actualizando cada segundo
       self.ventana.after(1000, self.actualizarEjecucion)  # Se ejecutará de nuevo en 1 segundo
@@ -298,11 +290,11 @@ class Ventana:
     self.lote_actual = 0
     self.procesoactual = self.listaEspera.peekFront()
     self.actualizarLotes()
-    self.actualizarEjecucion()
     self.actualizarEspera()
+    self.actualizarEjecucion()
 
   def actualizarLotes(self):
-    self.lotesp = len(self.listaEspera.hacerLotes()) -1
+    self.lotesp -= 1
     self.pendientes.config(text=f"Número de Lotes pendientes: {self.lotesp}") #lotes pendientes
 
 
