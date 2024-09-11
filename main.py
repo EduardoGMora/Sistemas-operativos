@@ -184,25 +184,13 @@ class Ventana:
     estado3.grid(row=1, column=4, pady=10)
 
     #procesos en espera
-    self.espera = tk.Text(ventana,
-                          width=30,
-                          borderwidth=4,
-                          bg="#FFDDDD",
-                          state=tk.DISABLED)
+    self.espera = tk.Text(ventana, width=30, borderwidth=4, bg="#FFDDDD", state=tk.DISABLED)
     self.espera.grid(row=2, column=0, padx=30)
     #procesos en ejecución
-    self.ejecucion = tk.Text(ventana,
-                             width=30,
-                             borderwidth=4,
-                             bg="lightyellow",
-                             state=tk.DISABLED)
+    self.ejecucion = tk.Text(ventana, width=30, borderwidth=4, bg="lightyellow", state=tk.DISABLED)
     self.ejecucion.grid(row=2, column=2, padx=30)
     #procesos terminados
-    self.terminado = tk.Text(ventana,
-                             width=30,
-                             borderwidth=4,
-                             bg="#DDFFDD",
-                             state=tk.DISABLED)
+    self.terminado = tk.Text(ventana, width=30, borderwidth=4, bg="#DDFFDD", state=tk.DISABLED)
     self.terminado.grid(row=2, column=4)
 
     #botón de inicio
