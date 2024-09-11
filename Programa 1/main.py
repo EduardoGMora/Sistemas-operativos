@@ -1,7 +1,5 @@
 import re
 import tkinter as tk
-from tkinter import simpledialog, messagebox
-import time
 
 class Procesos:  #clase de procesos o nodos
   #atributos
