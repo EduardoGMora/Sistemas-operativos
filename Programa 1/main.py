@@ -254,6 +254,7 @@ class Ventana:
       self.ventana.after(1000, self.actualizarEjecucion)  # Se ejecutará de nuevo en 1 segundo
 
     else:
+      self.listaTerminados.mostrarLista()
       texto = "\nNo hay procesos en ejecución."
       self.ejecucion.config(state=tk.NORMAL)
       self.ejecucion.delete('1.0', tk.END)
