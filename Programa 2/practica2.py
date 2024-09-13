@@ -1,6 +1,8 @@
-import re
 import random
 import tkinter as tk
+import keyboard
+import time
+# import threading
 
 class Procesos:  #clase de procesos o nodos
   #atributos
@@ -65,7 +67,7 @@ class LL:  #clase de estructura de datos Linked list
       i += 1
     return i
   
-  def mostrarLista(self):  #mostrar los procesos
+  def mostrarLista(self):  #mostrar la lista de procesos
     temp = self.head
     while temp is not None:
       print(f'\nNúmero de proceso: {temp.Id}')
@@ -197,13 +199,15 @@ class Ventana:
 
       # Actualizar el reloj global
       self.tiempo += 1
+      self.contador += 1
       self.relojglobal.config(text=f"Reloj Global: {self.tiempo}")
       
       # Si el TME llega a 0, pasar al siguiente proceso
       if self.procesoactual.tme == 0:
-        self.listaTerminados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme)
+        self.listaTerminados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.contador)
         self.actualizarTerminados()
         self.listaEspera.borrarHead()
+        self.contador = 0
         self.procesoactual = self.listaEspera.peekFront()
         self.actualizarEspera()
 
