@@ -34,6 +34,6 @@ Para ejecutar el programa, sigue estos pasos:
    ```sh
    cd path/to/your/directory
 3. Ejecuta el programa con el siguiente comando
-
-python main.py
+   ```sh
+   python main.py
 
