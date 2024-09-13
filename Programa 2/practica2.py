@@ -153,6 +153,7 @@ class Ventana:
     #botón de inicio
     boton = tk.Button(ventana, text="Iniciar", command=self.iniciar)
     boton.grid(row=3, column=2, pady=10)
+    keyboard.add_hotkey("space", self.iniciar)
 
 
   def actualizarEspera(self):  #actualiza la interfaz de espera
@@ -221,6 +222,8 @@ class Ventana:
       self.ejecucion.delete('1.0', tk.END)
       self.ejecucion.insert(tk.END, texto)
       self.ejecucion.config(state=tk.DISABLED)
+      # Cerrar el programa si no hay más procesos
+      keyboard.on_press_key("enter", lambda _: self.ventana.quit())
 
   def actualizarTerminados(self):  #actualiza la interfaz de terminados
     texto = ""
