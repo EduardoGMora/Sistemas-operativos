@@ -20,8 +20,8 @@ El programa genera procesos con operaciones y tiempos máximos estimados (TME) a
 3. Observa cómo se procesan los lotes y se actualiza la interfaz gráfica.
 4. Usa los siguientes atajos de teclado para interactuar con los procesos:
    - `Espacio`: Iniciar el procesamiento.
-   - `E`: Interrumpir el proceso actual.
-   - `W`: Marcar el proceso actual como error.
+   - `I`: Interrumpir el proceso actual.
+   - `E`: Marcar el proceso actual como error.
    - `P`: Pausar el procesamiento.
    - `C`: Continuar el procesamiento.
    - `Enter`: Cerrar el programa.
@@ -29,7 +29,7 @@ El programa genera procesos con operaciones y tiempos máximos estimados (TME) a
 ## Requisitos
 
 - Python 3.x
-- Bibliotecas: `random`, `tkinter`, `keyboard`, `time`
+- Bibliotecas: `random`, `tkinter`
 
 ## Ejecución
 
