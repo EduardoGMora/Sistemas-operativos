@@ -154,6 +154,7 @@ class Ventana:
     # atributos de ayuda
     self.contador = 0
     self.tiempo = 0
+    self.procesoLote = 1
     self.relojglobal = tk.Label(ventana, text=f"Reloj Global: {self.tiempo}")
     self.relojglobal.grid(row=0, column=4, padx=150)
     self.lotes = self.listaEspera.hacerLotes()
@@ -193,16 +194,13 @@ class Ventana:
 
   def actualizarEspera(self):  #actualiza la interfaz de espera
     texto = ""
-    if self.lote_actual < len(self.lotes): 
-      # Recorre los procesos del lote actual, excluyendo el proceso en ejecución
-      for proceso in self.lote_enespera:
-        if proceso != self.procesoactual and proceso.ejecutado == False:
-          texto += f'{proceso.Id}.- {proceso.operacion}\n TME: {proceso.tme}\n\n'
-      
-      # Si no hay procesos en espera en el lote actual
-      if texto == "":
-        texto = "No hay más procesos en espera en este lote."
-        self.lote_actual += 1
+    if self.lote_actual < len(self.lotes):
+        self.lote_enespera = self.lotes[self.lote_actual]
+
+        for proceso in self.lote_enespera:
+            if proceso != self.procesoactual and not proceso.ejecutado:
+                texto += f'{proceso.Id}.- {proceso.operacion}\n TME: {proceso.tme}\n\n'
+        
     else:
         texto = "No hay más procesos en espera."  # Si no hay más lotes
 
@@ -228,14 +226,13 @@ class Ventana:
                 
         # Si el TME llega a 0, pasar al siguiente proceso
         if self.procesoactual.tme == 0:
-          resultado = eval(self.procesoactual.operacion)
-          self.listaTerminados.agregarTail(self.procesoactual.Id, resultado, self.contador)
-          self.actualizarTerminados()
-          self.listaEspera.borrarHead()
-          self.contador = 0
-          self.procesoactual.ejecutado = True
-          self.procesoactual = self.procesoactual.next
-          self.actualizarEspera()
+            resultado = eval(self.procesoactual.operacion)
+            self.listaTerminados.agregarTail(self.procesoactual.Id, resultado, self.contador)
+            self.actualizarTerminados()
+            self.listaEspera.borrarHead()
+            self.contador = 0
+            self.procesoactual.ejecutado = True
+            self.procesoactual = self.procesoactual.next
 
       else:
         texto = "\nTodos los procesos han terminado."
@@ -255,6 +252,13 @@ class Ventana:
     while temp is not None:
       texto += f'{temp.Id}.- Resultado de la operación: {temp.operacion}\n\n\n'
       temp = temp.next
+    
+    self.procesoLote += 1
+    if self.procesoLote == 5:
+        self.lote_actual += 1
+        self.procesoLote = 0
+    
+    self.actualizarEspera()
     
     self.terminado.config(state=tk.NORMAL)  
     self.terminado.delete('1.0', tk.END)  
