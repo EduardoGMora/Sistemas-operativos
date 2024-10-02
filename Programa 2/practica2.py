@@ -1,8 +1,5 @@
 import random
 import tkinter as tk
-import keyboard as kb
-import time
-# import threading
 
 class Procesos:  #clase de procesos o nodos
   #atributos
@@ -10,6 +7,7 @@ class Procesos:  #clase de procesos o nodos
     self.Id = Id
     self.operacion = operacion
     self.tme = tme
+    self.ejecutado = False
     self.next = None  # Inicializar el apuntador al siguiente nodo como None
 
   @staticmethod
@@ -47,21 +45,34 @@ class LL:  #clase de estructura de datos Linked list
       self.tail.next = nuevoProceso
       self.tail = nuevoProceso
 
-  # switch del proceso en espera y el proceso en ejecución
-  def switch(self):
-    # Si no hay más procesos, tail también debe ser None
+  # switch del proceso en espera y el último proceso del lote
+  def switch(self, tamano_lote):
     if self.head is None or self.head.next is None:
       return
+    
+    temp = self.head
+    self.head = self.head.next
+    
+    self.insertar(temp.Id, temp.operacion, temp.tme, tamano_lote-1)
 
-    procesoEjecucion = self.head  # proceso en ejecución
-    procesoEspera = self.head.next  # proceso en espera
-    procesoEjecucion.next = procesoEspera.next  
-    procesoEspera.next = procesoEjecucion  
-    self.head = procesoEspera  
+  def insertar(self, Id, operacion, tme, tamano_lote):  #insertar un proceso en una posición específica
+    nuevoProceso = Procesos(Id, operacion, tme)
+    
+    # Caso de lista vacía, insertar al principio
+    if self.head is None:
+        self.head = nuevoProceso
+        return
+    
+    temp = self.head
+    j = 0
 
-    if self.tail == self.tail:
-      self.tail = procesoEjecucion
-
+    while temp.next is not None and j < tamano_lote - 1:
+      temp = temp.next
+      j += 1
+    
+    # Insertar el nuevo proceso al final del lote
+    nuevoProceso.next = temp.next
+    temp.next = nuevoProceso
 
   def borrarHead(self):  #borrar el primero
     if self.head is None:
@@ -149,6 +160,8 @@ class Ventana:
     self.lotesp = len(self.lotes)   #lotes pendientes
     self.pendientes = tk.Label(ventana, text=f"Número de Lotes pendientes: { self.lotesp }")
     self.pendientes.grid(row=3, column=0, pady=10)
+    self.lote_actual = 0
+    self.lote_enespera = self.lotes[self.lote_actual]
     self.pausado = False
 
     #label
@@ -172,49 +185,36 @@ class Ventana:
     self.terminado.grid(row=2, column=4)
 
     #botón de inicio
+    self.ventana.bind("<space>", lambda event: self.iniciar())  # Espacio para iniciar
     self.boton = tk.Button(ventana, text="Iniciar", command=self.iniciar)
     self.boton.grid(row=3, column=2, pady=10)
-    kb.add_hotkey("space", self.iniciar)
-    # Cerrar el programa 
-    kb.on_press_key("enter", lambda _: self.ventana.quit())
+    self.ventana.bind("<Return>", lambda event: self.ventana.quit()) # Enter para salir
 
 
   def actualizarEspera(self):  #actualiza la interfaz de espera
     texto = ""
-
-    # Verificar si aún hay lotes disponibles
-    if self.contador < len(self.lotes):
-      lote_actual = self.lotes[self.contador]  
-
-        # Verificar si el lote actual tiene procesos
-      if len(lote_actual) > 0:
-        proceso = lote_actual.pop(0)
-        # Mostrar el proceso en la interfaz
-        for proceso in lote_actual:
+    if self.lote_actual < len(self.lotes): 
+      # Recorre los procesos del lote actual, excluyendo el proceso en ejecución
+      for proceso in self.lote_enespera:
+        if proceso != self.procesoactual and proceso.ejecutado == False:
           texto += f'{proceso.Id}.- {proceso.operacion}\n TME: {proceso.tme}\n\n'
 
-          # Mostrar cuántos procesos faltan en el lote actual
-        texto += f'\nProcesos faltantes del lote: {len(lote_actual)}'
-      else:
-        # Si el lote actual está vacío, avanzar al siguiente lote
-        self.contador += 1
-        self.actualizarEspera()  # Llamar recursivamente para actualizar el siguiente lote
-        self.actualizarLotes()
-        return
+      # Si no hay procesos en espera en el lote actual
+      if texto == "":
+        texto = "No hay más procesos en espera en este lote."
+        self.lote_actual += 1
     else:
-      # Si no quedan más lotes, mostrar que no hay más procesos
-      texto = "No hay más procesos en espera."
+        texto = "No hay más procesos en espera."  # Si no hay más lotes
 
-    # Actualizar la caja de texto para mostrar los procesos en espera
     self.espera.config(state=tk.NORMAL)
     self.espera.delete('1.0', tk.END)
     self.espera.insert(tk.END, texto)
     self.espera.config(state=tk.DISABLED)
 
   def actualizarEjecucion(self): #actualiza la interfaz de ejecución
-    self.actualizarReloj()
-
     if not self.pausado:
+      self.actualizarReloj()
+
       if self.procesoactual is not None:
         self.procesoactual.tme -= 1  
         texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.contador} segundos\n\n'
@@ -224,23 +224,20 @@ class Ventana:
         self.ejecucion.insert(tk.END, texto)  
         self.ejecucion.config(state=tk.DISABLED)  
 
-        # Actualizar el reloj global
         self.contador += 1
-        
-        
+                
         # Si el TME llega a 0, pasar al siguiente proceso
         if self.procesoactual.tme == 0:
-          self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.contador)
+          resultado = eval(self.procesoactual.operacion)
+          self.listaTerminados.agregarTail(self.procesoactual.Id, resultado, self.contador)
           self.actualizarTerminados()
           self.listaEspera.borrarHead()
           self.contador = 0
-          self.procesoactual = self.listaEspera.peekFront()
+          self.procesoactual.ejecutado = True
+          self.procesoactual = self.procesoactual.next
           self.actualizarEspera()
 
-        # Continuar actualizando cada segundo
-
       else:
-        print("Todos los procesos han terminado.")
         texto = "\nTodos los procesos han terminado."
         self.ejecucion.config(state=tk.NORMAL)
         self.ejecucion.delete('1.0', tk.END)
@@ -252,9 +249,9 @@ class Ventana:
 
 
   def actualizarTerminados(self):  #actualiza la interfaz de terminados
-    self.listaTerminados.mostrarLista()
     texto = ""
     temp = self.listaTerminados.head
+
     while temp is not None:
       texto += f'{temp.Id}.- Resultado de la operación: {temp.operacion}\n\n\n'
       temp = temp.next
@@ -270,19 +267,19 @@ class Ventana:
     self.boton.config(state=tk.DISABLED)
 
     # Entradas del teclado
-    kb.add_hotkey("e", lambda: self.interrupcion())  # Interrupción
-    kb.add_hotkey("w", lambda: self.error())  # Error
-    kb.add_hotkey("p", lambda: self.pausa())  # Pausa
-    kb.add_hotkey("c", lambda: self.continuar())  # Continuar
+    self.ventana.bind("<i>", lambda event: self.interrupcion())
+    self.ventana.bind("<e>", lambda event: self.error())
+    self.ventana.bind("<p>", lambda event: self.pausa())
+    self.ventana.bind("<c>", lambda event: self.continuar())
 
     self.actualizarLotes()
     self.actualizarEspera()
     self.actualizarEjecucion()
 
   def interrupcion(self):
-    # Mueve el proceso actual a la cola
+    # Mueve el proceso actual al final del lote
     if self.procesoactual.next is not None:
-      self.listaEspera.switch()
+      self.listaEspera.switch(len(self.lote_enespera))
       self.procesoactual = self.listaEspera.peekFront()
       self.actualizarEspera()
       self.actualizarEjecucion()
@@ -293,10 +290,11 @@ class Ventana:
     if self.procesoactual is not None:
       # Agregar el proceso actual a la lista de terminados con estado de ERROR
       self.listaTerminados.agregarTail(self.procesoactual.Id, "ERROR", self.contador)
-      self.actualizarTerminados()
-      self.listaEspera.borrarHead()
       self.contador = 0
-      self.procesoactual = self.listaEspera.peekFront()
+      self.actualizarTerminados()
+      self.procesoactual.ejecutado = True
+      self.procesoactual = self.procesoactual.next
+      self.listaEspera.borrarHead()
       self.actualizarEspera()
 
   def pausa(self):
