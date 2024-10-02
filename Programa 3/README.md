@@ -1,0 +1,1 @@
+procesamiento por lotes tomando encuenta los 5 estados de procesamiento
