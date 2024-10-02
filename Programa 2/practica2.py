@@ -53,7 +53,7 @@ class LL:  #clase de estructura de datos Linked list
     temp = self.head
     self.head = self.head.next
     
-    self.insertar(temp.Id, temp.operacion, temp.tme, tamano_lote-1)
+    self.insertar(temp.Id, temp.operacion, temp.tme, tamano_lote)
 
   def insertar(self, Id, operacion, tme, tamano_lote):  #insertar un proceso en una posición específica
     nuevoProceso = Procesos(Id, operacion, tme)
@@ -198,7 +198,7 @@ class Ventana:
       for proceso in self.lote_enespera:
         if proceso != self.procesoactual and proceso.ejecutado == False:
           texto += f'{proceso.Id}.- {proceso.operacion}\n TME: {proceso.tme}\n\n'
-
+      
       # Si no hay procesos en espera en el lote actual
       if texto == "":
         texto = "No hay más procesos en espera en este lote."
@@ -279,7 +279,7 @@ class Ventana:
   def interrupcion(self):
     # Mueve el proceso actual al final del lote
     if self.procesoactual.next is not None:
-      self.listaEspera.switch(len(self.lote_enespera))
+      self.listaEspera.switch(len(self.lote_enespera)-1)
       self.procesoactual = self.listaEspera.peekFront()
       self.actualizarEspera()
       self.actualizarEjecucion()
