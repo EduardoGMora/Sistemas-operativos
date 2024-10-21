@@ -211,7 +211,7 @@ class Ventana:
             self.actualizarListos()
 
       else:
-        texto = "\nTodos los procesos han terminado."
+        texto = "\nTodos los procesos \nhan terminado."
         self.ejecucion.config(state=tk.NORMAL)
         self.ejecucion.delete('1.0', tk.END)
         self.ejecucion.insert(tk.END, texto)
@@ -275,7 +275,6 @@ class Ventana:
       self.procesoactual = self.procesoactual.next
       self.listaEjecucion.borrarHead()
       self.actualizarEspera()
-      self.actualizarListos()
       self.actualizarBloqueados()
 
       # Desbloquear proceso después de 8 segundos
@@ -296,13 +295,13 @@ class Ventana:
       self.actualizarTerminados()
       self.procesoactual = self.procesoactual.next
       self.listaEjecucion.borrarHead()
+      self.actualizarEspera()
       self.actualizarListos()
 
   def pausa(self): # Pausa los procesos
-    while self.pausado == False:
+    if not self.pausado:
       self.pausado = True
-      self.pausaText.config(text="Procesos pausados.")
-      
+      self.pausaText.config(text="Procesos pausados.")   
     
   def continuar(self): # Continúa los procesos
     if self.pausado:
