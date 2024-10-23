@@ -1,6 +1,6 @@
 # Practica 3: Algoritmo de planificación FCFS
 
-Este programa simula el procesamiento por lotes utilizando el algoritmo de planificación First Come First Serve (FCFS). Utiliza una lista enlazada para manejar los procesos y una interfaz gráfica para mostrar el estado de los procesos en diferentes estados: nuevo, listos, en ejecución, bloqueado y terminado.
+Este programa simula el procesamiento por lotes utilizando el algoritmo de planificación First Come First Serve (FCFS). Utiliza una lista enlazada para manejar los procesos y una interfaz gráfica para mostrar el estado de los procesos: nuevo, listos, en ejecución, bloqueado y terminado.
 
 ## Descripción
 
