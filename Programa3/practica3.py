@@ -220,7 +220,7 @@ class Ventana:
       
       self.actualizarListos()
 
-    self.ventana.after(1000, self.actualizarEjecucion)  # Se ejecutará de nuevo en 1 segundo
+      self.ventana.after(1000, self.actualizarEjecucion)  # Se ejecutará de nuevo en 1 segundo
   
   def actualizarBloqueados(self):  #actualiza la interfaz de bloqueados
     texto = ""
@@ -272,21 +272,28 @@ class Ventana:
   def interrupcion(self): # Mueve el proceso actual a lista de bloqueados
     if self.procesoactual is not None:
       self.listaBloqueados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme, self.procesoactual.tiempoTranscurrido + 8)
-      self.procesoactual = self.procesoactual.next
-      self.listaEjecucion.borrarHead()
-      self.actualizarEspera()
+      self.listaEjecucion.borrarHead()  # Eliminar el proceso de la lista de ejecución
+      
+      # Pasar al siguiente proceso
+      self.procesoactual = self.listaEjecucion.peekFront()
+      self.actualizarEjecucion()
+      self.actualizarListos()
       self.actualizarBloqueados()
-
+      
       # Desbloquear proceso después de 8 segundos
       def desbloquear():
-        for _ in range(0, 8):
-          sleep(1)
-        self.listaEjecucion.agregarTail(self.listaBloqueados.head.Id, self.listaBloqueados.head.operacion, self.listaBloqueados.head.tme, self.listaBloqueados.head.tiempoTranscurrido)
-        self.listaBloqueados.borrarHead()
-        self.actualizarListos()
-        self.actualizarBloqueados()
+        sleep(8)
+        if self.listaBloqueados.head is not None:
+          desbloqueado = self.listaBloqueados.borrarHead()
+          self.listaEjecucion.agregarTail(desbloqueado.Id, desbloqueado.operacion, desbloqueado.tme, desbloqueado.tiempoTranscurrido)
+          if self.procesoactual is None:
+            self.procesoactual = self.listaEjecucion.peekFront()
+          self.actualizarEjecucion()
+          self.actualizarBloqueados()
+          self.actualizarListos()
       
-      threading.Thread(target= desbloquear).start()
+      # Iniciar un hilo separado para manejar el desbloqueo
+      threading.Thread(target=desbloquear).start()
 
   def error(self): # Mueve el proceso actual a lista de terminados con estado de error
     if self.procesoactual is not None:
@@ -307,6 +314,7 @@ class Ventana:
     if self.pausado:
       self.pausado = False
       self.pausaText.config(text="")
+      self.actualizarEjecucion()
 
   def actualizarReloj(self):
     self.tiempo += 1
