@@ -236,6 +236,7 @@ class Ventana:
     self.bloqueados.delete('1.0', tk.END)
     self.bloqueados.insert(tk.END, texto)
     self.bloqueados.config(state=tk.DISABLED)
+    self.actualizarEspera()
 
   def actualizarTerminados(self):  #actualiza la interfaz de terminados
     texto = ""
