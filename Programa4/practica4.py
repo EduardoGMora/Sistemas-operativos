@@ -1,5 +1,6 @@
 import random
 import tkinter as tk
+from tkinter import ttk
 import threading
 from time import sleep
 
@@ -337,6 +338,44 @@ class Ventana:
     self.nuevo.delete('1.0', tk.END)
     self.nuevo.insert(tk.END, texto)
     self.nuevo.config(state=tk.DISABLED)
+  
+  def showBCP(self): # Muestra el Bloque de Control de Procesos
+    self.pausa()
+    tabla = tk.Toplevel(self.ventana)
+    tabla.title("Bloque de Control de Procesos")
+    tabla.geometry("600x400")
+
+    # Crear tabla
+    columnas = ("ID", "Operación", "TME", "Tiempo Transcurrido", "Estado")
+    tablaBCP = ttk.Treeview(tabla, columns=columnas, show="headings")
+    
+    tablaBCP.heading("ID", text="ID")
+    tablaBCP.heading("Operación", text="Operación")
+    tablaBCP.heading("TME", text="TME")
+    tablaBCP.heading("Tiempo Transcurrido", text="Tiempo Transcurrido")
+    tablaBCP.heading("Estado", text="Estado")
+
+    tablaBCP.column("ID", width=30)
+    tablaBCP.column("Operación", width=100)
+    tablaBCP.column("TME", width=50)
+    tablaBCP.column("Tiempo Transcurrido", width=100)
+    tablaBCP.column("Estado", width=100)
+    tablaBCP.pack(fill="both", expand=True)
+
+    # Función para añadir filas a la tabla BCP
+    def agregar_filas(lista, estado):
+      temp = lista.head
+      while temp is not None:
+        if temp == self.listaEjecucion.head:
+          estado = "Ejecución"
+        tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiempoTranscurrido, estado))
+        temp = temp.next
+
+    # Llenar la tabla BCP con los procesos de cada estado
+    agregar_filas(self.listaEjecucion, "Espera")
+    agregar_filas(self.listaEspera, "Nuevo")
+    agregar_filas(self.listaBloqueados, "Bloqueado")
+    agregar_filas(self.listaTerminados, "Terminado")
 
 
   def actualizarReloj(self):
