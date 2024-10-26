@@ -261,6 +261,8 @@ class Ventana:
     self.ventana.bind("<e>", lambda event: self.error())
     self.ventana.bind("<p>", lambda event: self.pausa())
     self.ventana.bind("<c>", lambda event: self.continuar())
+    self.ventana.bind('<n>', lambda event: self.nuevoproceso())
+    self.ventana.bind('<b>', lambda event: self.showBCP())
     
     for _ in range(0,4):
       if self.listaEspera.head is not None:
@@ -316,6 +318,26 @@ class Ventana:
       self.pausado = False
       self.pausaText.config(text="")
       self.actualizarEjecucion()
+
+  def nuevoproceso(self): # Agrega un nuevo proceso a la lista de espera
+    Id = self.listaEspera.tail.Id + 1
+    self.listaEspera.agregarTail(Id, Procesos.getOperacion(), Procesos.getTME(), 0)
+
+    texto = ""
+    temp = self.listaEspera.head
+
+    while temp is not None:
+      texto += f'{temp.Id}.- {temp.operacion}\n TME: {temp.tme}\n\n'
+      temp = temp.next
+    
+    if texto == "":
+      texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
+
+    self.nuevo.config(state=tk.NORMAL)
+    self.nuevo.delete('1.0', tk.END)
+    self.nuevo.insert(tk.END, texto)
+    self.nuevo.config(state=tk.DISABLED)
+
 
   def actualizarReloj(self):
     self.tiempo += 1
