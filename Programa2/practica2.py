@@ -1,4 +1,3 @@
-import random
 import tkinter as tk
 import ProcesosClass as pc
 import LLClass as ll
