@@ -26,9 +26,9 @@ En este programa se implementa el algoritmo de planificación First Come First S
 - [practica3.py](/Programa3/practica3.py)
 - [README.md](/Programa3/README.md)
 
-<!-- ## Programa 4
-Descripción del programa 4.
+## Programa 4
+Este programa simula el procesamiento por lotes utilizando el algoritmo de planificación First Come First Serve (FCFS). Utiliza una lista enlazada para manejar los procesos y una interfaz gráfica para mostrar el estado de los procesos en diferentes estados: nuevo, listos, en ejecución, bloqueado y terminado.
 
 ### Archivos:
-practica4.py
-README.md -->
+- [practica4.py](/Programa4/practica4.py)
+- [README.md](/Programa4/README.md)
