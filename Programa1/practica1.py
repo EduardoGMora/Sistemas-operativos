@@ -1,158 +1,7 @@
 import re
 import tkinter as tk
-
-class Procesos:  #clase de procesos o nodos
-  #atributos
-  def __init__(self, Id, nombre, operacion, tme):  
-    self.Id = Id
-    self.nombre = nombre
-    self.operacion = operacion
-    self.tme = tme
-    self.next = None  # Inicializar el apuntador al siguiente nodo como None
-
-  #métodos
-  @staticmethod
-  def getId():
-    while True:
-      try:
-        Id = int(input('\nIngrese el número de proceso -> '))
-        if Id>0:
-          return Id
-        else:
-          print('\nDebe de ingresar un número entero positivo')
-      except ValueError:
-        print('\nEntrada no valida. Por favor ingrese un número entero valido ')
-
-  @staticmethod
-  def getNombre():
-    while True:
-      nombre = str(input("\nIngrese un nombre -> ").strip())
-      if nombre:
-        return nombre
-      else:
-        print('\nEl nombre no puede estar vacío, inténtalo de nuevo.')
-
-  @staticmethod
-  def getOperacion():
-    # Definir una función para validar la operación
-    def es_operacion_valida(operacion):
-      # Permitir solo números, operadores matemáticos (+, -, *, /, %, ()), y espacios
-      patron = r'^[0-9+\-*/%(). ]+$'
-      return re.match(patron, operacion) is not None
-    
-    while True:
-      operacion = input("\nEscribe una operación matemática: ").strip()
-
-      # Verificar si la operación contiene solo caracteres válidos
-      if not es_operacion_valida(operacion):
-        print("\nOperación inválida. Solo se permiten números y operadores matemáticos.")
-        continue  # Volver a pedir la operación
-
-      # Intentar evaluar la operación
-      try:
-        resultado = eval(operacion)
-        return operacion  # Si es válida, devolver la operación
-      except ZeroDivisionError:
-        print("Error: No se puede dividir entre 0. Inténtalo de nuevo.")
-      except Exception as e:
-        print(f"Error en la operación: {str(e)}. Inténtalo de nuevo.")
-              
-  @staticmethod
-  def getTME():
-    while True:
-      try:
-        tme = int(input('\nIngrese el tiempo de ejecución del proceso -> '))
-        if tme>0:
-          return tme
-        else:
-          print('\nDebe de ingresar un número entero positivo')
-      except ValueError:
-        print('\nEntrada no valida. Por favor ingrese un número entero valido ')
-
-
-class LL:  #clase de estructura de datos Linked list
-  def __init__(self):  #apuntadores
-    self.head = None
-    self.tail = None
-
-  #métodos
-  def agregarTail(self, Id, nombre, operacion, tme):  #agregar al final
-    nuevoProceso = Procesos(Id, nombre, operacion, tme)
-    if self.tail is None:
-      self.head = nuevoProceso
-      self.tail = nuevoProceso
-    else:
-      self.tail.next = nuevoProceso
-      self.tail = nuevoProceso
-
-  def borrarHead(self):  #borrar el primero
-    if self.head is None:
-      return None
-    temp = self.head
-    self.head = temp.next
-    if self.head is None:
-      self.tail = None
-    return temp
-
-  def peekFront(self):  #ver el primero
-    return self.head
-
-  def contar(self):  #contar los números de procesos
-    temp = self.head
-    i = 0
-    while temp is not None:
-      temp = temp.next
-      i += 1
-    return i
-  
-  def mostrarLista(self):  #mostrar los procesos
-    temp = self.head
-    while temp is not None:
-      print(f'\nNúmero de proceso: {temp.Id}')
-      print(f"Nombre del proceso: {temp.nombre}")
-      print(f"Resultado: {eval(temp.operacion)}")
-      print(f"Tiempo de ejecución: {temp.tme}")
-      temp = temp.next
-
-  def mostrarProceso(self, proceso):  #mostrar un proceso
-    print(f'Número de proceso: {proceso.Id}')
-    print(f"Nombre del proceso: {proceso.nombre}")
-    print(f"Resultado: {eval(proceso.operacion)}")
-    print(f"Tiempo de ejecución: {proceso.tme}")
-
-  def buscar(self,Id):
-    temp = self.head
-    while temp is not None:
-      if temp.Id == Id:
-        return self.mostrarProceso(temp)
-      temp = temp.next
-    return None
-  
-  def hacerLotes(self):
-    lotes = []
-    lote_actual = []
-    temp = self.head
-    contador = 0
-    
-    # Iterar sobre la lista y agrupar en lotes de 4
-    while temp is not None:
-      lote_actual.append(temp)
-      contador += 1
-
-      # Si el lote actual tiene 4 procesos, lo agregamos a la lista de lotes
-      if contador == 4:
-        lotes.append(lote_actual)
-        lote_actual = []  # Reiniciar el lote
-        contador = 0
-
-      # Pasar al siguiente proceso
-      temp = temp.next
-
-    # Agregar el último lote si no está vacío
-    if len(lote_actual) > 0:
-      lotes.append(lote_actual)
-
-    return lotes  # Retorna la lista de lotes
+import ProcesosClass as claseprocesos
+import LLClass as LL
 
 class Ventana:
   def __init__(self, ventana, listaEspera, listaTerminados):
@@ -286,8 +135,8 @@ class Ventana:
 
 
 def main():
-  listaEspera = LL()  #Lista de procesos en espera
-  listaTerminados = LL()  #Lista de procesos terminados
+  listaEspera = LL.LL()  #Lista de procesos en espera
+  listaTerminados = LL.LL()  #Lista de procesos terminados
 
   # Crear una instancia de la clase Proceso
   def nprocesos():
@@ -304,13 +153,13 @@ def main():
   ids = []
   for _ in range(nprocesos()):
     # Validar que cada id sea único
-    Idproceso = Procesos.getId()
+    Idproceso = claseprocesos.Procesos.getId()
     while Idproceso in ids:
       print('\nEl número de proceso ya existe. Inténtalo de nuevo.')
-      Idproceso = Procesos.getId()
+      Idproceso = claseprocesos.Procesos.getId()
     ids.append(Idproceso)
 
-    listaEspera.agregarTail(Idproceso, Procesos.getNombre(), Procesos.getOperacion(), Procesos.getTME())
+    listaEspera.agregarTail(Idproceso, claseprocesos.Procesos.getNombre(), claseprocesos.Procesos.getOperacion(), claseprocesos.Procesos.getTME())
 
   ventana = tk.Tk()
   app = Ventana(ventana, listaEspera, listaTerminados)
