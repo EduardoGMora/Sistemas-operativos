@@ -307,7 +307,6 @@ class Ventana:
     self.tiempo += 1
     self.relojglobal.config(text=f"Reloj Global: {self.tiempo} segundos")
 
-
 def main():
   listaEspera = ll.LL()  #Lista de procesos en espera
   listaEjecucion = ll.LL()  #Lista de procesos en ejecución

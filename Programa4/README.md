@@ -8,10 +8,10 @@ El programa genera procesos con operaciones y tiempos máximos estimados (TME) a
 
 ## Estructura del Código
 
-- `Procesos`: Clase que representa un proceso con atributos `Id`, `operacion`, `tme`, `tiempoTranscurrido` y `next`.
-- `LL`: Clase que representa una lista enlazada para manejar los procesos.
-- `Ventana`: Clase que maneja la interfaz gráfica utilizando `tkinter`.
-- `main()`: Función principal que inicializa las listas de procesos, genera los procesos y lanza la interfaz gráfica.
+- [`Procesos`](/Programa4/ProcesosClass.py): Clase que representa un proceso con atributos `Id`, `operacion`, `tme`, `tiempoTranscurrido` y `next`.
+- [`LL`](/Programa4/LLClass.py): Clase que representa una lista enlazada para manejar los procesos.
+- [`Ventana`](/Programa4/practica4.py#L9): Clase que maneja la interfaz gráfica utilizando `tkinter`.
+- [`main()`](/Programa4/practica4.py#L310): Función principal que inicializa las listas de procesos, genera los procesos y lanza la interfaz gráfica.
 
 ## Uso
 
