@@ -1,92 +1,9 @@
-import random
+# Autor: Eduardo Mora
 import tkinter as tk
 import threading
 from time import sleep
-
-class Procesos:  #clase de procesos o nodos
-  #atributos
-  def __init__(self, Id, operacion, tme, tiempoTranscurrido):  
-    self.Id = Id
-    self.operacion = operacion
-    self.tme = tme
-    self.tiempoTranscurrido = tiempoTranscurrido
-    self.next = None  # Inicializar el apuntador al siguiente nodo como None
-
-  @staticmethod
-  def getOperacion():
-    operadores = ['+', '-', '*', '/', '%']  # Lista de operadores matemáticos
-    num1 = random.randint(0, 100)
-    num2 = random.randint(0, 100)
-
-    operador = random.choice(operadores)
-
-    if num2 == 0 and operador == '/' or operador == '%':
-      num2 = random.randint(1, 100)
-
-    operacion = f"{num1} {operador} {num2}"
-
-    return operacion
-              
-  @staticmethod
-  def getTME():
-    tme = random.randint(5, 18) # Tiempo de ejecución aleatorio entre 5 y 18 segundos
-    return tme
-
-class LL:  #clase de estructura de datos Linked list
-  def __init__(self):  #apuntadores
-    self.head = None
-    self.tail = None
-
-  #métodos
-  def agregarTail(self, Id, operacion, tme, tiempoTranscurrido):  #agregar al final
-    nuevoProceso = Procesos(Id, operacion, tme, tiempoTranscurrido)
-    if self.tail is None:
-      self.head = nuevoProceso
-      self.tail = nuevoProceso
-    else:
-      self.tail.next = nuevoProceso
-      self.tail = nuevoProceso
-
-  def borrarHead(self):  #borrar el primero
-    if self.head is None:
-      return None
-    temp = self.head
-    self.head = temp.next
-    if self.head is None:
-      self.tail = None
-    return temp
-
-  def peekFront(self):  #ver el primero
-    return self.head
-
-  def contar(self):  #contar los números de procesos
-    temp = self.head
-    i = 0
-    while temp is not None:
-      temp = temp.next
-      i += 1
-    return i
-  
-  def mostrarLista(self):  #mostrar la lista de procesos
-    temp = self.head
-    while temp is not None:
-      print(f'\nNúmero de proceso: {temp.Id}')
-      print(f"Resultado: {temp.operacion}")
-      print(f"Tiempo de Máximo de Ejecución: {temp.tme}")
-      temp = temp.next
-
-  def mostrarProceso(self, proceso):  #mostrar un proceso
-    print(f'Número de proceso: {proceso.Id}')
-    print(f"Resultado: {proceso.operacion}")
-    print(f"Tiempo de Máximo de Ejecución: {proceso.tme}")
-
-  def buscar(self,Id):
-    temp = self.head
-    while temp is not None:
-      if temp.Id == Id:
-        return self.mostrarProceso(temp)
-      temp = temp.next
-    return None
+import ProcesosClass as pc
+import LLClass as ll
 
 class Ventana:
   def __init__(self, ventana, listaEspera, listaEjecucion, listaBloqueados, listaTerminados):
@@ -321,12 +238,11 @@ class Ventana:
     self.tiempo += 1
     self.relojglobal.config(text=f"Reloj Global: {self.tiempo} segundos")
 
-
 def main():
-  listaEspera = LL()  #Lista de procesos en espera
-  listaEjecucion = LL()  #Lista de procesos en ejecución
-  listaBloqueados = LL()  #Lista de procesos bloqueados
-  listaTerminados = LL()  #Lista de procesos terminados
+  listaEspera = ll.LL()  #Lista de procesos en espera
+  listaEjecucion = ll.LL()  #Lista de procesos en ejecución
+  listaBloqueados = ll.LL()  #Lista de procesos bloqueados
+  listaTerminados = ll.LL()  #Lista de procesos terminados
 
   # Crear una instancia de la clase Proceso
   def nprocesos():
@@ -344,7 +260,7 @@ def main():
   Id = 0
   for _ in range(nprocesos()):
     Id += 1
-    listaEspera.agregarTail(Id, Procesos.getOperacion(), Procesos.getTME(), 0)
+    listaEspera.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
 
   ventana = tk.Tk()
   app = Ventana(ventana, listaEspera, listaEjecucion, listaBloqueados, listaTerminados)

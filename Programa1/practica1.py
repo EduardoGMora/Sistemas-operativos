@@ -1,4 +1,4 @@
-import re
+# Autor: Eduardo Mora
 import tkinter as tk
 import ProcesosClass as claseprocesos
 import LLClass as LL
