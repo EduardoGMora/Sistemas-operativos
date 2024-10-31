@@ -160,14 +160,17 @@ class Ventana:
     self.ventana.bind("<e>", lambda event: self.error())
     self.ventana.bind("<p>", lambda event: self.pausa())
     self.ventana.bind("<c>", lambda event: self.continuar())
-    
+
+    self.agregarProceso()
+
+    self.actualizarNuevos()
+    self.actualizarEjecucion()
+  
+  def agregarProceso(self):  # Agrega un proceso a la lista de ejecución
     for _ in range(0,4):
       if self.listaEspera.head is not None:
         self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiempoTranscurrido)
         self.listaEspera.borrarHead()
-
-    self.actualizarNuevos()
-    self.actualizarEjecucion()
 
   def interrupcion(self): # Mueve el proceso actual a lista de bloqueados
     if self.procesoactual is not None:
@@ -248,7 +251,7 @@ def main():
   Id = 0
   for _ in range(nprocesos()):
     Id += 1
-    listaEspera.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
+    listaEspera.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)  
 
   ventana = tk.Tk()
   app = Ventana(ventana, listaEspera, listaEjecucion, listaBloqueados, listaTerminados)
