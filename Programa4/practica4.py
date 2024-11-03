@@ -58,13 +58,12 @@ class Ventana:
     self.terminado.grid(row=2, column=8, padx=30)
 
     #botón de inicio
-    self.ventana.bind("<space>", lambda event: self.iniciar())  # Espacio para iniciar
     self.boton = tk.Button(ventana, text="Iniciar", command=self.iniciar)
     self.boton.grid(row=3, column=4, pady=10)
     self.ventana.bind("<Return>", lambda event: self.ventana.quit()) # Enter para salir
 
 
-  def actualizarEspera(self):  #actualiza la interfaz de espera
+  def actualizarNuevos(self):  #actualiza la interfaz de espera
     texto = ""
     if self.listaEspera.head is not None:
       self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiempoTranscurrido)
@@ -79,10 +78,7 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
 
-    self.nuevo.config(state=tk.NORMAL)
-    self.nuevo.delete('1.0', tk.END)
-    self.nuevo.insert(tk.END, texto)
-    self.nuevo.config(state=tk.DISABLED)
+    self.actulizarTextArea(self.nuevo, texto)
 
   def actualizarListos(self):  #actualiza la interfaz de listos
     texto = ""
@@ -99,10 +95,7 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay más procesos en listos."
     
-    self.listos.config(state=tk.NORMAL)
-    self.listos.delete('1.0', tk.END)
-    self.listos.insert(tk.END, texto)
-    self.listos.config(state=tk.DISABLED)
+    self.actulizarTextArea(self.listos, texto)
 
   def actualizarEjecucion(self): #actualiza la interfaz de ejecución
     if not self.pausado:
@@ -112,10 +105,7 @@ class Ventana:
         self.procesoactual.tme -= 1  
         texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiempoTranscurrido} segundos\n\n'
         
-        self.ejecucion.config(state=tk.NORMAL)  
-        self.ejecucion.delete('1.0', tk.END)  
-        self.ejecucion.insert(tk.END, texto)  
-        self.ejecucion.config(state=tk.DISABLED)  
+        self.actulizarTextArea(self.ejecucion, texto)
 
         self.procesoactual.tiempoTranscurrido += 1
                 
@@ -125,15 +115,11 @@ class Ventana:
             self.actualizarTerminados()
             self.listaEjecucion.borrarHead()
             self.procesoactual = self.procesoactual.next
-            self.actualizarEspera()
             self.actualizarListos()
 
       else:
         texto = "\nTodos los procesos \nhan terminado."
-        self.ejecucion.config(state=tk.NORMAL)
-        self.ejecucion.delete('1.0', tk.END)
-        self.ejecucion.insert(tk.END, texto)
-        self.ejecucion.config(state=tk.DISABLED)
+        self.actulizarTextArea(self.ejecucion, texto)
         return
       
       self.actualizarListos()
@@ -143,6 +129,7 @@ class Ventana:
   def actualizarBloqueados(self):  #actualiza la interfaz de bloqueados
     texto = ""
     temp = self.listaBloqueados.head
+
     while temp is not None:
       texto += f'{temp.Id}.- {temp.operacion}\n TME: {temp.tme}\n\n'
       temp = temp.next
@@ -150,11 +137,7 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay procesos bloqueados."
     
-    self.bloqueados.config(state=tk.NORMAL)
-    self.bloqueados.delete('1.0', tk.END)
-    self.bloqueados.insert(tk.END, texto)
-    self.bloqueados.config(state=tk.DISABLED)
-    self.actualizarEspera()
+    self.actulizarTextArea(self.bloqueados, texto)
 
   def actualizarTerminados(self):  #actualiza la interfaz de terminados
     texto = ""
@@ -165,11 +148,8 @@ class Ventana:
       temp = temp.next
     
     self.actualizarListos()
-    
-    self.terminado.config(state=tk.NORMAL)  
-    self.terminado.delete('1.0', tk.END)  
-    self.terminado.insert(tk.END, texto)  
-    self.terminado.config(state=tk.DISABLED)  
+    self.actualizarNuevos()
+    self.actulizarTextArea(self.terminado, texto)
   
   def iniciar(self):
     self.procesoactual = self.listaEspera.peekFront()
@@ -179,16 +159,19 @@ class Ventana:
     self.ventana.bind("<e>", lambda event: self.error())
     self.ventana.bind("<p>", lambda event: self.pausa())
     self.ventana.bind("<c>", lambda event: self.continuar())
-    self.ventana.bind('<n>', lambda event: self.nuevoproceso())
+    self.ventana.bind('<n>', lambda event: self.crearNuevoproceso())
     self.ventana.bind('<b>', lambda event: self.showBCP())
     
+    self.agregarProceso()
+
+    self.actualizarNuevos()
+    self.actualizarEjecucion()
+  
+  def agregarProceso(self):  # Agrega un proceso a la lista de ejecución
     for _ in range(0,4):
       if self.listaEspera.head is not None:
         self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiempoTranscurrido)
         self.listaEspera.borrarHead()
-
-    self.actualizarEspera()
-    self.actualizarEjecucion()
 
   def interrupcion(self): # Mueve el proceso actual a lista de bloqueados
     if self.procesoactual is not None:
@@ -223,7 +206,6 @@ class Ventana:
       self.actualizarTerminados()
       self.procesoactual = self.procesoactual.next
       self.listaEjecucion.borrarHead()
-      self.actualizarEspera()
       self.actualizarListos()
 
   def pausa(self): # Pausa los procesos
@@ -237,7 +219,7 @@ class Ventana:
       self.pausaText.config(text="")
       self.actualizarEjecucion()
 
-  def nuevoproceso(self): # Agrega un nuevo proceso a la lista de espera
+  def crearNuevoproceso(self): # Agrega un nuevo proceso a la lista de espera
     Id = self.listaEspera.tail.Id + 1
     self.listaEspera.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
 
@@ -251,10 +233,7 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
 
-    self.nuevo.config(state=tk.NORMAL)
-    self.nuevo.delete('1.0', tk.END)
-    self.nuevo.insert(tk.END, texto)
-    self.nuevo.config(state=tk.DISABLED)
+    self.actulizarTextArea(self.nuevo, texto)
   
   def showBCP(self): # Muestra el Bloque de Control de Procesos
     self.pausa()
@@ -306,6 +285,12 @@ class Ventana:
   def actualizarReloj(self):
     self.tiempo += 1
     self.relojglobal.config(text=f"Reloj Global: {self.tiempo} segundos")
+  
+  def actulizarTextArea(self, widget, texto):
+    widget.config(state=tk.NORMAL)
+    widget.delete('1.0', tk.END)
+    widget.insert(tk.END, texto)
+    widget.config(state=tk.DISABLED)
 
 def main():
   listaEspera = ll.LL()  #Lista de procesos en espera
