@@ -4,7 +4,7 @@ Este programa simula el procesamiento por lotes utilizando el algoritmo de plani
 
 ## Descripción
 
-El programa genera procesos con operaciones y tiempos máximos estimados (TME) aleatorios. Los procesos se agrupan en lotes y se procesan secuencialmente según el algoritmo FCFS. La interfaz gráfica muestra el estado de los procesos en cinco categorías: nuevo, listos, en ejecución, bloqueado y terminado. Además, permite pausar, continuar, interrumpir y manejar errores en los procesos mediante atajos de teclado.
+El programa genera procesos con operaciones y tiempos máximos estimados (TME) aleatorios. Los procesos se agrupan en lotes y se procesan secuencialmente según el algoritmo FCFS. La interfaz gráfica muestra el estado de los procesos en cinco categorías: nuevo, listos, en ejecución, bloqueado y terminado. Además, permite pausar, continuar, interrumpir, manejar errores en los procesos, agregar procesos y ver su tabla de registros BCP mediante atajos de teclado.
 
 ## Estructura del Código
 
