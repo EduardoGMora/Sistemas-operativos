@@ -7,12 +7,12 @@ import ProcesosClass as pc
 import LLClass as ll
 
 class Ventana:
-  def __init__(self, ventana, listaEspera, listaEjecucion, listaBloqueados, listaTerminados):
+  def __init__(self, ventana, listaNuevo, listaEjecucion, listaBloqueados, listaTerminados):
     self.ventana = ventana          #atributos
     self.ventana.title("Procesamiento por lotes (First Come First Server)")
 
     # instancia de la clase LL
-    self.listaEspera = listaEspera
+    self.listaNuevo = listaNuevo
     self.listaEjecucion = listaEjecucion
     self.listaBloqueados = listaBloqueados
     self.listaTerminados = listaTerminados
@@ -28,7 +28,7 @@ class Ventana:
     self.relojglobal.grid(row=0, column=8, padx=150)
 
     #label
-    etiqueta = tk.Label(ventana, text=f'Número de procesos: {listaEspera.contar()}', font="arial 12")
+    etiqueta = tk.Label(ventana, text=f'Número de procesos: {listaNuevo.contar()}', font="arial 12")
     etiqueta.grid(row=0, column=0, pady=10)
     estado1 = tk.Label(ventana, text="NUEVO", font="arial 12")
     estado1.grid(row=1, column=0, pady=10)
@@ -65,11 +65,11 @@ class Ventana:
 
   def actualizarNuevos(self):  #actualiza la interfaz de espera
     texto = ""
-    if self.listaEspera.head is not None:
-      self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiempoTranscurrido)
-      self.listaEspera.borrarHead()
+    if self.listaNuevo.head is not None:
+      self.listaEjecucion.agregarTail(self.listaNuevo.head.Id, self.listaNuevo.head.operacion, self.listaNuevo.head.tme, self.listaNuevo.head.tiempoTranscurrido)
+      self.listaNuevo.borrarHead()
 
-    temp = self.listaEspera.head
+    temp = self.listaNuevo.head
 
     while temp is not None:
       texto += f'{temp.Id}.- {temp.operacion}\n TME: {temp.tme}\n\n'
@@ -152,7 +152,7 @@ class Ventana:
     self.actulizarTextArea(self.terminado, texto)
   
   def iniciar(self):
-    self.procesoactual = self.listaEspera.peekFront()
+    self.procesoactual = self.listaNuevo.peekFront()
     self.boton.config(state=tk.DISABLED)
 
     self.ventana.bind("<i>", lambda evebt: self.interrupcion())
@@ -169,9 +169,9 @@ class Ventana:
   
   def agregarProceso(self):  # Agrega un proceso a la lista de ejecución
     for _ in range(0,4):
-      if self.listaEspera.head is not None:
-        self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiempoTranscurrido)
-        self.listaEspera.borrarHead()
+      if self.listaNuevo.head is not None:
+        self.listaEjecucion.agregarTail(self.listaNuevo.head.Id, self.listaNuevo.head.operacion, self.listaNuevo.head.tme, self.listaNuevo.head.tiempoTranscurrido)
+        self.listaNuevo.borrarHead()
 
   def interrupcion(self): # Mueve el proceso actual a lista de bloqueados
     if self.procesoactual is not None:
@@ -220,11 +220,20 @@ class Ventana:
       self.actualizarEjecucion()
 
   def crearNuevoproceso(self): # Agrega un nuevo proceso a la lista de espera
-    Id = self.listaEspera.tail.Id + 1
-    self.listaEspera.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
+    if self.listaNuevo.head is None:
+      temp = self.listaEjecucion.head
+      Id = temp.Id
+      while temp is not None:
+        if temp.Id > Id:
+          Id = temp.Id
+        temp = temp.next
+      Id += 1
+    else: Id = self.listaNuevo.tail.Id + 1
+    
+    self.listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
 
     texto = ""
-    temp = self.listaEspera.head
+    temp = self.listaNuevo.head
 
     while temp is not None:
       texto += f'{temp.Id}.- {temp.operacion}\n TME: {temp.tme}\n\n'
@@ -232,8 +241,9 @@ class Ventana:
     
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
-
     self.actulizarTextArea(self.nuevo, texto)
+
+    return self.actualizarNuevos() if self.listaEjecucion.contar() < 5 and self.listaBloqueados.contar() == 0 else None
   
   def showBCP(self): # Muestra el Bloque de Control de Procesos
     self.pausa()
@@ -277,7 +287,7 @@ class Ventana:
 
     # Llenar la tabla BCP con los procesos de cada estado
     agregar_filas(self.listaEjecucion, "Espera")
-    agregar_filas(self.listaEspera, "Nuevo")
+    agregar_filas(self.listaNuevo, "Nuevo")
     agregar_filas(self.listaBloqueados, "Bloqueado")
     agregar_filas(self.listaTerminados, "Terminado")
 
@@ -293,7 +303,7 @@ class Ventana:
     widget.config(state=tk.DISABLED)
 
 def main():
-  listaEspera = ll.LL()  #Lista de procesos en espera
+  listaNuevo = ll.LL()  #Lista de procesos en espera
   listaEjecucion = ll.LL()  #Lista de procesos en ejecución
   listaBloqueados = ll.LL()  #Lista de procesos bloqueados
   listaTerminados = ll.LL()  #Lista de procesos terminados
@@ -314,10 +324,10 @@ def main():
   Id = 0
   for _ in range(nprocesos()):
     Id += 1
-    listaEspera.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
+    listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
 
   ventana = tk.Tk()
-  app = Ventana(ventana, listaEspera, listaEjecucion, listaBloqueados, listaTerminados)
+  app = Ventana(ventana, listaNuevo, listaEjecucion, listaBloqueados, listaTerminados)
   ventana.mainloop()
 
 if __name__ == "__main__":
