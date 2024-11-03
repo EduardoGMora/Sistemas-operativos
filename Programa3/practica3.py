@@ -57,7 +57,6 @@ class Ventana:
     self.terminado.grid(row=2, column=8, padx=30)
 
     #botón de inicio
-    self.ventana.bind("<space>", lambda event: self.iniciar())  # Espacio para iniciar
     self.boton = tk.Button(ventana, text="Iniciar", command=self.iniciar)
     self.boton.grid(row=3, column=4, pady=10)
     self.ventana.bind("<Return>", lambda event: self.ventana.quit()) # Enter para salir
@@ -115,7 +114,6 @@ class Ventana:
           self.actualizarTerminados()
           self.listaEjecucion.borrarHead()
           self.procesoactual = self.procesoactual.next
-          self.actualizarNuevos()
           self.actualizarListos()
 
       else:
@@ -138,7 +136,6 @@ class Ventana:
       texto = "\nNo hay procesos bloqueados."
     
     self.actulizarTextArea(self.bloqueados, texto)
-    self.actualizarNuevos()
 
   def actualizarTerminados(self):  #actualiza la interfaz de terminados
     texto = ""
@@ -149,7 +146,7 @@ class Ventana:
       temp = temp.next
     
     self.actualizarListos()
-    
+    self.actualizarNuevos()
     self.actulizarTextArea(self.terminado, texto)
   
   def iniciar(self):
@@ -205,7 +202,6 @@ class Ventana:
       self.actualizarTerminados()
       self.procesoactual = self.procesoactual.next
       self.listaEjecucion.borrarHead()
-      self.actualizarNuevos()
       self.actualizarListos()
 
   def pausa(self): # Pausa los procesos
