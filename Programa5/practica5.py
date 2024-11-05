@@ -7,7 +7,7 @@ import ProcesosClass as pc
 import LLClass as ll
 
 class Ventana:
-  def __init__(self, ventana, listaEspera, listaEjecucion, listaBloqueados, listaTerminados):
+  def __init__(self, ventana, listaEspera, listaEjecucion, listaBloqueados, listaTerminados, quantum):
     self.ventana = ventana          #atributos
     self.ventana.title("Procesamiento por lotes (First Come First Server)")
 
@@ -16,6 +16,7 @@ class Ventana:
     self.listaEjecucion = listaEjecucion
     self.listaBloqueados = listaBloqueados
     self.listaTerminados = listaTerminados
+    self.quantum = quantum
     self.procesoactual = None       #inicializa el apuntador al proceso en ejecución
     
     # atributos de ayuda
@@ -301,23 +302,33 @@ def main():
   # Crear una instancia de la clase Proceso
   def nprocesos():
      while True:
-       try:
-         n = int(input('\nIngrese el número de procesos -> '))
-         if n > 0:
-           return n
-         else:
-           print('\nDebe ingresar un número entero positivo')
-       except ValueError:
-         print('\nEntrada no válida. Por favor ingrese un número entero válido.')
+      try:
+        n = int(input('\nIngrese el número de procesos -> '))
+        if n > 0:
+          return n
+        print('\nDebe ingresar un número entero positivo')
+      except ValueError:
+        print('\nEntrada no válida. Por favor ingrese un número entero válido.')
   
   #hacer autocremental el Id
   Id = 0
   for _ in range(nprocesos()):
     Id += 1
     listaEspera.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
+  
+  def obtener_quantum():
+    while True:
+      try:
+        quantum = int(input('\nIngrese el quantum -> '))
+        if quantum > 0:
+          return quantum
+        print('\nDebe ingresar un número entero positivo')
+      except ValueError:
+        print('\nEntrada no válida. Por favor ingrese un número entero válido.')
+  quantum = obtener_quantum()
 
   ventana = tk.Tk()
-  app = Ventana(ventana, listaEspera, listaEjecucion, listaBloqueados, listaTerminados)
+  app = Ventana(ventana, listaEspera, listaEjecucion, listaBloqueados, listaTerminados, quantum)
   ventana.mainloop()
 
 if __name__ == "__main__":
