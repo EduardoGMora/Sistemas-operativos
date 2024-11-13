@@ -2,11 +2,13 @@ import random
 
 class Procesos:  #clase de procesos o nodos
   #atributos
-  def __init__(self, Id, operacion, tme, tiempoTranscurrido):  
+  def __init__(self, Id, operacion, tme, tiemporestante, tiempoTranscurrido, tiempollegada):  
     self.Id = Id
     self.operacion = operacion
     self.tme = tme
+    self.tiemporestante = tiemporestante
     self.tiempoTranscurrido = tiempoTranscurrido
+    self.tiempollegada = tiempollegada
     self.next = None  # Inicializar el apuntador al siguiente nodo como None
 
   @staticmethod
