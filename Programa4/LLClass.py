@@ -6,8 +6,8 @@ class LL:  #clase de estructura de datos Linked list
     self.tail = None
 
   #métodos
-  def agregarTail(self, Id, operacion, tme, tiempoTranscurrido):  #agregar al final
-    nuevoProceso = pc.Procesos(Id, operacion, tme, tiempoTranscurrido)
+  def agregarTail(self, Id, operacion, tme, tiemporestante, tiempoTranscurrido = 0, tiempollegada = 0):  #agregar al final
+    nuevoProceso = pc.Procesos(Id, operacion, tme, tiemporestante, tiempoTranscurrido, tiempollegada)
     if self.tail is None:
       self.head = nuevoProceso
       self.tail = nuevoProceso
