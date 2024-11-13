@@ -100,7 +100,6 @@ class Ventana:
       self.actualizarReloj()
 
       if self.procesoactual is not None:
-        self.procesoactual.tme -= 1
         self.procesoactual.tiemporestante -= 1
         texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiempoTranscurrido} segundos\n\n'
         
@@ -109,7 +108,7 @@ class Ventana:
         self.procesoactual.tiempoTranscurrido += 1
                 
         # Si el TME llega a 0, pasar al siguiente proceso
-        if self.procesoactual.tme == 0:
+        if self.procesoactual.tiemporestante == 0:
           self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiempoTranscurrido)
           self.actualizarTerminados()
           self.listaEjecucion.borrarHead()
@@ -142,7 +141,7 @@ class Ventana:
     temp = self.listaTerminados.head
 
     while temp is not None:
-      texto += f'{temp.Id}.- Resultado de la operación: {temp.operacion}\n Tiempo restante -> {temp.tme} \n Tiempo transcurrido -> {temp.tiempoTranscurrido}\n Tiempo llegada -> {temp.tiempollegada}\n\n\n'
+      texto += f'{temp.Id}.- Resultado de la operación: {temp.operacion}\n Tiempo restante -> {temp.tiemporestante} \n Tiempo transcurrido -> {temp.tme}\n Tiempo llegada -> {temp.tiempollegada}\n Tiempo de espera -> {self.tiempo - temp.tiemporestante - temp.tme}\n\n\n'
       temp = temp.next
     
     self.actualizarListos()
