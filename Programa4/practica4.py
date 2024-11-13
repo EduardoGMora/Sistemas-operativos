@@ -9,7 +9,7 @@ import LLClass as ll
 class Ventana:
   def __init__(self, ventana, listaNuevo, listaEjecucion, listaBloqueados, listaTerminados):
     self.ventana = ventana          #atributos
-    self.ventana.title("Procesamiento por lotes (First Come First Server)")
+    self.ventana.title("Procesamiento por lotes (First Come First Server 2)")
 
     # instancia de la clase LL
     self.listaNuevo = listaNuevo
@@ -78,7 +78,7 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
 
-    self.actulizarTextArea(self.nuevo, texto)
+    self.actualizarTextArea(self.nuevo, texto)
 
   def actualizarListos(self):  #actualiza la interfaz de listos
     texto = ""
@@ -95,7 +95,7 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay más procesos en listos."
     
-    self.actulizarTextArea(self.listos, texto)
+    self.actualizarTextArea(self.listos, texto)
 
   def actualizarEjecucion(self): #actualiza la interfaz de ejecución
     if not self.pausado:
@@ -105,7 +105,7 @@ class Ventana:
         self.procesoactual.tme -= 1  
         texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiempoTranscurrido} segundos\n\n'
         
-        self.actulizarTextArea(self.ejecucion, texto)
+        self.actualizarTextArea(self.ejecucion, texto)
 
         self.procesoactual.tiempoTranscurrido += 1
                 
@@ -119,7 +119,7 @@ class Ventana:
 
       else:
         texto = "\nTodos los procesos \nhan terminado."
-        self.actulizarTextArea(self.ejecucion, texto)
+        self.actualizarTextArea(self.ejecucion, texto)
         return
       
       self.actualizarListos()
@@ -137,7 +137,7 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay procesos bloqueados."
     
-    self.actulizarTextArea(self.bloqueados, texto)
+    self.actualizarTextArea(self.bloqueados, texto)
 
   def actualizarTerminados(self):  #actualiza la interfaz de terminados
     texto = ""
@@ -149,7 +149,7 @@ class Ventana:
     
     self.actualizarListos()
     self.actualizarNuevos()
-    self.actulizarTextArea(self.terminado, texto)
+    self.actualizarTextArea(self.terminado, texto)
   
   def iniciar(self):
     self.procesoactual = self.listaNuevo.peekFront()
@@ -241,7 +241,7 @@ class Ventana:
     
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
-    self.actulizarTextArea(self.nuevo, texto)
+    self.actualizarTextArea(self.nuevo, texto)
 
     return self.actualizarNuevos() if self.listaEjecucion.contar() < 5 and self.listaBloqueados.contar() == 0 else None
   
@@ -296,7 +296,7 @@ class Ventana:
     self.tiempo += 1
     self.relojglobal.config(text=f"Reloj Global: {self.tiempo} segundos")
   
-  def actulizarTextArea(self, widget, texto):
+  def actualizarTextArea(self, widget, texto):
     widget.config(state=tk.NORMAL)
     widget.delete('1.0', tk.END)
     widget.insert(tk.END, texto)
