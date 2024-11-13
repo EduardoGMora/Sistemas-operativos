@@ -5,6 +5,7 @@ import LLClass as ll
 import VentanaClass as vc
 
 def main():
+  listaNuevos = ll.LL()  #Lista de procesos nuevos
   listaEspera = ll.LL()  #Lista de procesos en espera
   listaEjecucion = ll.LL()  #Lista de procesos en ejecución
   listaBloqueados = ll.LL()  #Lista de procesos bloqueados
@@ -25,7 +26,7 @@ def main():
   Id = 0
   for _ in range(nprocesos()):
     Id += 1
-    listaEspera.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
+    listaNuevos.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
   
   def obtener_quantum():
     while True:
@@ -39,7 +40,7 @@ def main():
   quantum = obtener_quantum()
 
   ventana = tk.Tk()
-  app = vc.Ventana(ventana, listaEspera, listaEjecucion, listaBloqueados, listaTerminados, quantum)
+  app = vc.Ventana(ventana, listaNuevos, listaEspera, listaEjecucion, listaBloqueados, listaTerminados, quantum)
   ventana.mainloop()
 
 if __name__ == "__main__":
