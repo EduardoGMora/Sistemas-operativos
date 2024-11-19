@@ -6,8 +6,8 @@ class LL:  #clase de estructura de datos Linked list
     self.tail = None
 
   #métodos
-  def agregarTail(self, Id, operacion, tme, tiemporestante, tiempoTranscurrido = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0):  #agregar al final
-    nuevoProceso = pc.Procesos(Id, operacion, tme, tiemporestante, tiempoTranscurrido, tiempollegada, tiemporetorno, tiempoespera)
+  def agregarTail(self, Id, operacion, tme, tiemporestante, tiemposervicio = 1, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0):  #agregar al final
+    nuevoProceso = pc.Procesos(Id, operacion, tme, tiemporestante, tiemposervicio, tiempollegada, tiemporetorno, tiempoespera)
     if self.tail is None:
       self.head = nuevoProceso
       self.tail = nuevoProceso
@@ -42,7 +42,7 @@ class LL:  #clase de estructura de datos Linked list
       print(f"Resultado: {temp.operacion}")
       print(f"Tiempo de Máximo de Ejecución: {temp.tme}")
       print(f"Tiempo Restante: {temp.tiemporestante}")
-      print(f"Tiempo Transcurrido: {temp.tiempoTranscurrido}")
+      print(f"Tiempo Transcurrido: {temp.tiemposervicio}")
       temp = temp.next
 
   def mostrarProceso(self, proceso):  #mostrar un proceso
@@ -50,7 +50,7 @@ class LL:  #clase de estructura de datos Linked list
     print(f"Resultado: {proceso.operacion}")
     print(f"Tiempo de Máximo de Ejecución: {proceso.tme}")
     print(f"Tiempo Restante: {proceso.tiemporestante}")
-    print(f"Tiempo Transcurrido: {proceso.tiempoTranscurrido}")
+    print(f"Tiempo Transcurrido: {proceso.tiemposervicio}")
 
   def buscar(self,Id):
     temp = self.head
