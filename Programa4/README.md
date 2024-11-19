@@ -19,11 +19,12 @@ El programa genera procesos con operaciones y tiempos máximos estimados (TME) a
 2. Ingresa el número de procesos que deseas generar.
 3. Observa cómo se procesan los lotes y se actualiza la interfaz gráfica.
 4. Usa los siguientes atajos de teclado para interactuar con los procesos:
-   - `Espacio`: Iniciar el procesamiento.
-   - `I`: Interrumpir el proceso actual.
-   - `E`: Marcar el proceso actual como error.
-   - `P`: Pausar el procesamiento.
-   - `C`: Continuar el procesamiento.
+   - `i`: Interrumpir el proceso actual.
+   - `e`: Marcar el proceso actual como error.
+   - `p`: Pausar el procesamiento.
+   - `c`: Continuar el procesamiento.
+   - `n`: Crear nuevo proceso
+   - `b`: Pausa el procesamiento y muestra la tabla BCP
    - `Enter`: Cerrar el programa.
 
 ## Requisitos
