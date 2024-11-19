@@ -109,7 +109,10 @@ class Ventana:
                 
         # Si el TME llega a 0, pasar al siguiente proceso
         if self.procesoactual.tiemporestante == 0:
-          self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiempoTranscurrido)
+          # Id, operacion, tme, tiemporestante, tiempoTranscurrido, tiempollegada, tiemporetorno, tiempoespera
+          self.procesoactual.tiemporetorno = self.tiempo - self.procesoactual.tiempollegada
+          self.procesoactual.tiempoespera = self.procesoactual.tiemporetorno - self.procesoactual.tiempoTranscurrido
+          self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tme, self.procesoactual.tiempollegada, self.procesoactual.tiemporetorno, self.procesoactual.tiempoespera)
           self.actualizarTerminados()
           self.listaEjecucion.borrarHead()
           self.procesoactual = self.procesoactual.next
@@ -141,7 +144,7 @@ class Ventana:
     temp = self.listaTerminados.head
 
     while temp is not None:
-      texto += f'{temp.Id}.- Resultado de la operación: {temp.operacion}\n Tiempo restante -> {temp.tiemporestante} \n Tiempo transcurrido -> {temp.tme}\n Tiempo llegada -> {temp.tiempollegada}\n Tiempo de espera -> {self.tiempo - temp.tiemporestante - temp.tme}\n\n\n'
+      texto += f'{temp.Id}.- Resultado de la operación: {temp.operacion}\n Tiempo restante -> {temp.tiemporestante} \n Tiempo transcurrido -> {temp.tiempoTranscurrido}\n Tiempo de espera -> {temp.tiempoespera}\n Tiempo de retorno -> {temp.tiemporetorno} \n\n\n'
       temp = temp.next
     
     self.actualizarListos()
@@ -196,7 +199,10 @@ class Ventana:
 
   def error(self): # Mueve el proceso actual a lista de terminados con estado de error
     if self.procesoactual is not None:
-      self.listaTerminados.agregarTail(self.procesoactual.Id, "ERROR", self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiempoTranscurrido)
+      # Id, operacion, tme, tiemporestante, tiempoTranscurrido, tiempollegada, tiemporetorno, tiempoespera
+      self.procesoactual.tiemporetorno = self.tiempo - self.procesoactual.tiempollegada
+      self.procesoactual.tiempoespera = self.procesoactual.tiemporetorno - self.procesoactual.tiempoTranscurrido
+      self.listaTerminados.agregarTail(self.procesoactual.Id, "ERROR", self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiempoTranscurrido, self.procesoactual.tiempollegada, self.procesoactual.tiemporetorno, self.procesoactual.tiempoespera)
       self.actualizarTerminados()
       self.procesoactual = self.procesoactual.next
       self.listaEjecucion.borrarHead()
