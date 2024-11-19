@@ -65,7 +65,7 @@ class Ventana:
   def actualizarNuevos(self):  #actualiza la interfaz de espera
     texto = ""
     if self.listaNuevo.head is not None:
-      self.listaEjecucion.agregarTail(self.listaNuevo.head.Id, self.listaNuevo.head.operacion, self.listaNuevo.head.tme, self.listaNuevo.head.tiemporestante, self.listaNuevo.head.tiempoTranscurrido)
+      self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante)
       self.listaNuevo.borrarHead()
 
     temp = self.listaNuevo.head
@@ -85,8 +85,8 @@ class Ventana:
     try:
       temp = self.listaEjecucion.head.next
       while temp is not None:
-        temp.tiempoTranscurrido += 1
-        texto += f'{temp.Id}.- TME: {temp.tme}\n Tiempo Transcurrido: {temp.tiempoTranscurrido} \n\n'
+        temp.tiempoespera += 1
+        texto += f'{temp.Id}.- TME: {temp.tme}\n Tiempo de espera: {temp.tiempoespera} \n\n'
         temp = temp.next
     except AttributeError:
       pass
@@ -101,21 +101,23 @@ class Ventana:
       self.actualizarReloj()
 
       if self.procesoactual is not None:
-        self.procesoactual.tme -= 1
         self.procesoactual.tiemporestante -= 1
-        texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiempoTranscurrido} segundos\n\n'
+        texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiemposervicio} segundos\n\n\n'
         
         self.actualizarTextArea(self.ejecucion, texto)
 
-        self.procesoactual.tiempoTranscurrido += 1
+        self.procesoactual.tiemposervicio += 1
                 
         # Si el TME llega a 0, pasar al siguiente proceso
-        if self.procesoactual.tme == 0:
-          self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiempoTranscurrido)
-          self.actualizarTerminados()
+        if self.procesoactual.tiemposervicio == self.procesoactual.tme:
+          # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
+          tiemporetorno = self.tiempo - self.procesoactual.tiempollegada
+          tiempoespera = tiemporetorno - self.procesoactual.tme
+          self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tme, self.procesoactual.tiempollegada, tiemporetorno, tiempoespera)
           self.listaEjecucion.borrarHead()
+          threading.Thread(target=self.actualizarTerminados).start()
           self.procesoactual = self.procesoactual.next
-          self.actualizarListos()
+          threading.Thread(target=self.actualizarListos).start()
 
       else:
         texto = "\nTodos los procesos \nhan terminado."
@@ -144,10 +146,10 @@ class Ventana:
     temp = self.listaTerminados.head
 
     while temp is not None:
-      texto += f'{temp.Id}.- Resultado de la operación: {temp.operacion}\n Tiempo restante -> {temp.tme} \n Tiempo transcurrido -> {temp.tiempoTranscurrido}\n Tiempo llegada -> {temp.tiempollegada}\n\n\n'
+      texto += f'{temp.Id}.- Resultado de la operación: {temp.operacion}\n Tiempo restante -> {temp.tiemporestante} \n Tiempo de Servicio -> {temp.tiemposervicio}\n Tiempo de espera -> {temp.tiempoespera}\n Tiempo de retorno -> {temp.tiemporetorno} \n\n\n'
       temp = temp.next
     
-    self.actualizarListos()
+    threading.Thread(target=self.actualizarListos).start()
     self.actualizarNuevos()
     self.actualizarTextArea(self.terminado, texto)
   
@@ -155,7 +157,7 @@ class Ventana:
     self.procesoactual = self.listaNuevo.peekFront()
     self.boton.config(state=tk.DISABLED)
 
-    self.ventana.bind("<i>", lambda evebt: self.interrupcion())
+    self.ventana.bind("<i>", lambda event: self.interrupcion())
     self.ventana.bind("<e>", lambda event: self.error())
     self.ventana.bind("<p>", lambda event: self.pausa())
     self.ventana.bind("<c>", lambda event: self.continuar())
@@ -170,18 +172,19 @@ class Ventana:
   def agregarProceso(self):  # Agrega un proceso a la lista de ejecución
     for _ in range(0,4):
       if self.listaNuevo.head is not None:
-        self.listaEjecucion.agregarTail(self.listaNuevo.head.Id, self.listaNuevo.head.operacion, self.listaNuevo.head.tme, self.listaNuevo.head.tiemporestante, self.listaNuevo.head.tiempoTranscurrido)
-        self.listaNuevo.borrarHead()
+        # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
+        self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante, self.listaEspera.head.tiemposervicio)
+        self.listaEspera.borrarHead()
 
   def interrupcion(self): # Mueve el proceso actual a lista de bloqueados
     if self.procesoactual is not None:
-      self.listaBloqueados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiempoTranscurrido + 8)
+      self.listaBloqueados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiempoespera + 8)
       self.listaEjecucion.borrarHead()  # Eliminar el proceso de la lista de ejecución
       
       # Pasar al siguiente proceso
       self.procesoactual = self.listaEjecucion.peekFront()
       self.actualizarEjecucion()
-      self.actualizarListos()
+      threading.Thread(target=self.actualizarListos).start()
       self.actualizarBloqueados()
       
       # Desbloquear proceso después de 8 segundos
@@ -189,7 +192,7 @@ class Ventana:
         sleep(8)
         if self.listaBloqueados.head is not None:
           desbloqueado = self.listaBloqueados.borrarHead()
-          self.listaEjecucion.agregarTail(desbloqueado.Id, desbloqueado.operacion, desbloqueado.tme, desbloqueado.tiemporestante, desbloqueado.tiempoTranscurrido)
+          self.listaEjecucion.agregarTail(desbloqueado.Id, desbloqueado.operacion, desbloqueado.tme, desbloqueado.tiemporestante, desbloqueado.tiemposervicio)
           if self.procesoactual is None:
             self.procesoactual = self.listaEjecucion.peekFront()
           self.actualizarEjecucion()
@@ -201,11 +204,14 @@ class Ventana:
 
   def error(self): # Mueve el proceso actual a lista de terminados con estado de error
     if self.procesoactual is not None:
-      self.listaTerminados.agregarTail(self.procesoactual.Id, "ERROR", self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiempoTranscurrido)
-      self.actualizarTerminados()
+      # Id, operacion, tme, tiemporestante, tiemposervicio, tiempollegada, tiemporetorno, tiempoespera
+      tiemporetorno = self.tiempo - self.procesoactual.tiempollegada
+      tiempoespera = tiemporetorno - self.procesoactual.tme + self.procesoactual.tiemporestante
+      self.listaTerminados.agregarTail(self.procesoactual.Id, "ERROR", self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiemposervicio, self.procesoactual.tiempollegada, tiemporetorno, tiempoespera)
+      threading.Thread(target=self.actualizarTerminados).start()
       self.procesoactual = self.procesoactual.next
       self.listaEjecucion.borrarHead()
-      self.actualizarListos()
+      threading.Thread(target=self.actualizarListos).start()
 
   def pausa(self): # Pausa los procesos
     if not self.pausado:
@@ -251,14 +257,14 @@ class Ventana:
     tabla.geometry("700x400")
 
     # Crear tabla
-    columnas = ("ID", "Operación", "TME", "Tiempo restante", "Tiempo Transcurrido", "Tiempo Llegada", "Estado")
+    columnas = ("ID", "Operación", "TME", "Tiempo restante", "Tiempo de servicio", "Tiempo Llegada", "Estado")
     tablaBCP = ttk.Treeview(tabla, columns=columnas, show="headings")
     
     tablaBCP.heading("ID", text="ID")
     tablaBCP.heading("Operación", text="Operación")
     tablaBCP.heading("TME", text="TME")
     tablaBCP.heading("Tiempo restante", text="Tiempo restante")
-    tablaBCP.heading("Tiempo Transcurrido", text="Tiempo Transcurrido")
+    tablaBCP.heading("Tiempo de servicio", text="Tiempo de servicio")
     tablaBCP.heading("Tiempo Llegada", text="Tiempo Llegada")
     tablaBCP.heading("Estado", text="Estado")
 
@@ -266,7 +272,7 @@ class Ventana:
     tablaBCP.column("Operación", width=100)
     tablaBCP.column("TME", width=50)
     tablaBCP.column("Tiempo restante", width=100)
-    tablaBCP.column("Tiempo Transcurrido", width=100)
+    tablaBCP.column("Tiempo de servicio", width=100)
     tablaBCP.column("Tiempo Llegada", width=100)
     tablaBCP.column("Estado", width=100)
 
@@ -277,13 +283,13 @@ class Ventana:
       temp = lista.head
       while temp is not None:
         if temp == self.listaEjecucion.head:
-          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiemporestante, temp.tiempoTranscurrido, temp.tiempollegada,"Ejecución"))
+          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiemporestante, temp.tiemposervicio, temp.tiempollegada,"Ejecución"))
         elif estado == "Nuevo":
           tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, 'NULL', 'NULL', temp.tiempollegada, estado))
         elif estado == "Terminado":
-          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, 0, temp.tiempoTranscurrido, temp.tiempollegada, estado))
+          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, 0, temp.tiemposervicio, temp.tiempollegada, estado))
         else:
-          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiemporestante, temp.tiempoTranscurrido, temp.tiempollegada, estado))
+          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiemporestante, temp.tiemposervicio, temp.tiempollegada, estado))
         temp = temp.next
 
     # Llenar la tabla BCP con los procesos de cada estado

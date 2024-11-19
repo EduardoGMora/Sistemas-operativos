@@ -175,7 +175,7 @@ class Ventana:
 
   def interrupcion(self): # Mueve el proceso actual a lista de bloqueados
     if self.procesoactual is not None:
-      self.listaBloqueados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiemposervicio)
+      self.listaBloqueados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiempoespera + 8)
       self.listaEjecucion.borrarHead()  # Eliminar el proceso de la lista de ejecución
       
       # Pasar al siguiente proceso
@@ -195,7 +195,7 @@ class Ventana:
             self.procesoactual = self.listaEjecucion.peekFront()
           self.actualizarEjecucion()
           self.actualizarBloqueados()
-          threading.Thread(target=self.actualizarListos).start()
+          self.actualizarListos()
       
       # Iniciar un hilo separado para manejar el desbloqueo
       threading.Thread(target=desbloquear).start()
