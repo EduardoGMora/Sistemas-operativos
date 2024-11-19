@@ -65,7 +65,7 @@ class Ventana:
   def actualizarNuevos(self):  #actualiza la interfaz de espera
     texto = ""
     if self.listaNuevo.head is not None:
-      self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante)
+      self.listaEjecucion.agregarTail(self.listaNuevo.head.Id, self.listaNuevo.head.operacion, self.listaNuevo.head.tme, self.listaNuevo.head.tiemporestante)
       self.listaNuevo.borrarHead()
 
     temp = self.listaNuevo.head
@@ -173,8 +173,8 @@ class Ventana:
     for _ in range(0,4):
       if self.listaNuevo.head is not None:
         # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
-        self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante, self.listaEspera.head.tiemposervicio)
-        self.listaEspera.borrarHead()
+        self.listaEjecucion.agregarTail(self.listaNuevo.head.Id, self.listaNuevo.head.operacion, self.listaNuevo.head.tme, self.listaNuevo.head.tiemporestante, self.listaNuevo.head.tiemposervicio)
+        self.listaNuevo.borrarHead()
 
   def interrupcion(self): # Mueve el proceso actual a lista de bloqueados
     if self.procesoactual is not None:
