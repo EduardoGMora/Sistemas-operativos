@@ -235,7 +235,9 @@ class Ventana:
       Id += 1
     else: Id = self.listaNuevo.tail.Id + 1
     
-    self.listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), pc.Procesos.getTME(), 0, self.tiempo)
+    tme = pc.Procesos.getTME()
+    # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
+    self.listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme)
 
     texto = ""
     temp = self.listaNuevo.head
@@ -254,10 +256,11 @@ class Ventana:
     self.pausa()
     tabla = tk.Toplevel(self.ventana)
     tabla.title("Bloque de Control de Procesos")
-    tabla.geometry("700x400")
+    tabla.geometry("800x400")
 
     # Crear tabla
-    columnas = ("ID", "Operación", "TME", "Tiempo restante", "Tiempo de servicio", "Tiempo Llegada", "Estado")
+    # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
+    columnas = ("ID", "Operación", "TME", "Tiempo restante", "Tiempo de servicio", "Tiempo Llegada", "Tiempo de Retorno", "Tiempo de espera", "Estado")
     tablaBCP = ttk.Treeview(tabla, columns=columnas, show="headings")
     
     tablaBCP.heading("ID", text="ID")
@@ -266,6 +269,8 @@ class Ventana:
     tablaBCP.heading("Tiempo restante", text="Tiempo restante")
     tablaBCP.heading("Tiempo de servicio", text="Tiempo de servicio")
     tablaBCP.heading("Tiempo Llegada", text="Tiempo Llegada")
+    tablaBCP.heading("Tiempo de Retorno", text="Tiempo de Retorno")
+    tablaBCP.heading("Tiempo de espera", text="Tiempo de espera")
     tablaBCP.heading("Estado", text="Estado")
 
     tablaBCP.column("ID", width=30)
@@ -274,6 +279,8 @@ class Ventana:
     tablaBCP.column("Tiempo restante", width=100)
     tablaBCP.column("Tiempo de servicio", width=100)
     tablaBCP.column("Tiempo Llegada", width=100)
+    tablaBCP.column("Tiempo de Retorno", width=100)
+    tablaBCP.column("Tiempo de espera", width=100)
     tablaBCP.column("Estado", width=100)
 
     tablaBCP.pack(fill="both", expand=True)
@@ -283,13 +290,12 @@ class Ventana:
       temp = lista.head
       while temp is not None:
         if temp == self.listaEjecucion.head:
-          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiemporestante, temp.tiemposervicio, temp.tiempollegada,"Ejecución"))
+          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiemporestante, temp.tiemposervicio, temp.tiempollegada, 'NULL', 'NULL', estado))
         elif estado == "Nuevo":
-          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, 'NULL', 'NULL', temp.tiempollegada, estado))
-        elif estado == "Terminado":
-          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, 0, temp.tiemposervicio, temp.tiempollegada, estado))
+          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tme, 0, 0, 'NULL', 'NULL', estado))
         else:
-          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiemporestante, temp.tiemposervicio, temp.tiempollegada, estado))
+          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiemporestante, temp.tiemposervicio, temp.tiempollegada, temp.tiemporetorno, temp.tiempoespera, estado))
+          
         temp = temp.next
 
     # Llenar la tabla BCP con los procesos de cada estado
