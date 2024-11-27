@@ -21,7 +21,6 @@ class Ventana:
     self.procesoactual = None       #inicializa el apuntador al proceso en ejecución
     
     # atributos de ayuda
-    self.contador = 0
     self.tiempo = 0
     self.pausado = False
     self.pausaText = tk.Label(self.ventana, text="", font="arial 12")
@@ -203,14 +202,14 @@ class Ventana:
 
   def error(self): # Mueve el proceso actual a lista de terminados con estado de error
     if self.procesoactual is not None:
-      self.listaTerminados.agregarTail(self.procesoactual.Id, "ERROR", self.contador, self.procesoactual.tiempoTranscurrido)
-      self.contador = 0
-      self.actualizarTerminados()
+      tiemporetorno = self.tiempo - self.procesoactual.tiempollegada + 1
+      tiempoespera = tiemporetorno - self.procesoactual.tme + self.procesoactual.tiemporestante + 1
+      self.listaTerminados.agregarTail(self.procesoactual.Id, "ERROR", self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiemposervicio, self.procesoactual.tiempollegada, tiemporetorno, tiempoespera)
+      threading.Thread(target=self.actualizarTerminados).start()
       self.listaEjecucion.borrarHead()
-      self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiempoTranscurrido)
-      self.listaEspera.borrarHead()
       self.procesoactual = self.listaEjecucion.peekFront()
-      self.actualizarListos()
+      self.listaEspera.borrarHead()
+      threading.Thread(target=self.actualizarNuevos).start()
 
   def pausa(self): # Pausa los procesos
     if not self.pausado:
@@ -224,11 +223,22 @@ class Ventana:
       self.actualizarEjecucion()
 
   def crearNuevoproceso(self): # Agrega un nuevo proceso a la lista de espera
-    Id = self.listaNuevos.tail.Id + 1
-    self.listaNuevos.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
+    if self.listaNuevo.head is None:
+      temp = self.listaEjecucion.head
+      Id = temp.Id
+      while temp is not None:
+        if temp.Id > Id:
+          Id = temp.Id
+        temp = temp.next
+      Id += 1
+    else: Id = self.listaNuevo.tail.Id + 1
+    
+    tme = pc.Procesos.getTME()
+    # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
+    self.listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme)
 
     texto = ""
-    temp = self.listaNuevos.head
+    temp = self.listaNuevo.head
 
     while temp is not None:
       texto += f'{temp.Id}.- {temp.operacion}\n TME: {temp.tme}\n\n'
@@ -236,8 +246,7 @@ class Ventana:
     
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
-
-    self.actulizarTextArea(self.nuevo, texto)
+    self.actualizarTextArea(self.nuevo, texto)
   
   def showBCP(self): # Muestra el Bloque de Control de Procesos
     self.pausa()

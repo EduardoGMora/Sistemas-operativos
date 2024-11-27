@@ -13,7 +13,7 @@ def main():
 
   # Crear una instancia de la clase Proceso
   def nprocesos():
-     while True:
+    while True:
       try:
         n = int(input('\nIngrese el número de procesos -> '))
         if n > 0:
