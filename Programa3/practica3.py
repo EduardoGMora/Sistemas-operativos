@@ -109,7 +109,7 @@ class Ventana:
         self.procesoactual.tiemposervicio += 1
                 
         # Si el TME llega a 0, pasar al siguiente proceso
-        if self.procesoactual.tiemposervicio >= self.procesoactual.tme:
+        if self.procesoactual.tiemposervicio == self.procesoactual.tme:
           tiemporetorno = self.tiempo - self.procesoactual.tiempollegada + 1
           tiempoespera = self.tiempo + 1 - self.procesoactual.tme - self.procesoactual.tiempollegada
           self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.procesoactual.tme, 0, self.procesoactual.tme, self.procesoactual.tiempollegada, tiemporetorno, tiempoespera)

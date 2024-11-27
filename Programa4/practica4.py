@@ -109,7 +109,7 @@ class Ventana:
         self.procesoactual.tiemposervicio += 1
                 
         # Si el TME llega a 0, pasar al siguiente proceso
-        if self.procesoactual.tiemposervicio >= self.procesoactual.tme:
+        if self.procesoactual.tiemposervicio == self.procesoactual.tme:
           # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
           tiemporetorno = self.tiempo - self.procesoactual.tiempollegada + 1
           tiempoespera = tiemporetorno - self.procesoactual.tme + 1
