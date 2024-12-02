@@ -175,14 +175,14 @@ class Ventana:
     for _ in range(0,4):
       if self.listaNuevo.head is not None:
         # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
-        self.listaEjecucion.agregarTail(self.listaNuevo.head.Id, self.listaNuevo.head.operacion, self.listaNuevo.head.tme, self.listaNuevo.head.tiemporestante)
+        self.listaEjecucion.agregarTail(self.listaNuevo.head.Id, self.listaNuevo.head.operacion, self.listaNuevo.head.tme, self.listaNuevo.head.tme)
         self.listaNuevo.borrarHead()
       else:
         break
 
   def interrupcion(self): # Mueve el proceso actual a lista de bloqueados
     if self.procesoactual is not None:
-      self.listaBloqueados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiemposervicio, self.procesoactual.tiempollegada, self.procesoactual.tiemporetorno + 8,self.procesoactual.tiempoespera)
+      self.listaBloqueados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiemposervicio, self.procesoactual.tiempollegada, self.procesoactual.tiemporetorno,self.procesoactual.tiempoespera)
       self.listaEjecucion.borrarHead()  # Eliminar el proceso de la lista de ejecución
       
       # Pasar al siguiente proceso

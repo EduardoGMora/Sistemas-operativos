@@ -11,7 +11,7 @@ El programa genera procesos con operaciones y tiempos máximos estimados (TME) a
 - [`Procesos`](/Programa3/ProcesosClass.py): Clase que representa un proceso con atributos `Id`, `operacion`, `tme`, `tiempoTranscurrido`, `ejecutado` y `next`.
 - [`LL`](/Programa3/LLClass.py): Clase que representa una lista enlazada para manejar los procesos.
 - [`Ventana`](/Programa3/practica3.py#L8): Clase que maneja la interfaz gráfica utilizando `tkinter`.
-- [`main()`](/Programa3/practica3.py#L235): Función principal que inicializa las listas de procesos, genera los procesos y lanza la interfaz gráfica.
+- [`main()`](/Programa3/practica3.py#L237): Función principal que inicializa las listas de procesos, genera los procesos y lanza la interfaz gráfica.
 
 ## Uso
 
