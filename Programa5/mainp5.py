@@ -23,8 +23,9 @@ def main():
         print('\nEntrada no válida. Por favor ingrese un número entero válido.')
   
   #hacer autocremental el Id
+  nprocesos = nprocesos()
   Id = 0
-  for _ in range(nprocesos()):
+  for _ in range(nprocesos):
     Id += 1
     listaNuevos.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
   
@@ -40,7 +41,7 @@ def main():
   quantum = obtener_quantum()
 
   ventana = tk.Tk()
-  app = vc.Ventana(ventana, listaNuevos, listaEspera, listaEjecucion, listaBloqueados, listaTerminados, quantum)
+  app = vc.Ventana(ventana, listaNuevos, listaEspera, listaEjecucion, listaBloqueados, listaTerminados, nprocesos, quantum)
   ventana.mainloop()
 
 if __name__ == "__main__":

@@ -23,6 +23,7 @@ class Ventana:
     # atributos de ayuda
     self.tiempo = 0
     self.pausado = False
+    self.contador = 0
     self.pausaText = tk.Label(self.ventana, text="", font="arial 12")
     self.pausaText.grid(row=0, column=6, pady=10)
     self.relojglobal = tk.Label(ventana, text=f"Reloj Global: {self.tiempo}")
@@ -104,34 +105,46 @@ class Ventana:
     if not self.pausado:
       self.actualizarReloj()
 
-      if self.procesoactual is not None:
-        self.procesoactual.tiemporestante -= 1  
-        texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiemposervicio} segundos\n\n'
-        
-        self.actualizarTextArea(self.ejecucion, texto)
+      if self.contador < self.quantum:
+        self.contador += 1
+        if self.procesoactual is not None:
+          self.procesoactual.tiemporestante -= 1  
+          texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiemposervicio} segundos\n\n'
+          
+          self.actualizarTextArea(self.ejecucion, texto)
 
-        self.procesoactual.tiemposervicio += 1
-                
-        # Si el TME llega a 0, pasar al siguiente proceso
-        if self.procesoactual.tiemposervicio == self.procesoactual.tme:
-          tiemporetorno = self.tiempo - self.procesoactual.tiempollegada + 1
-          tiempoespera = tiemporetorno - self.procesoactual.tme + 1
-          self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.procesoactual.tme, 0, self.procesoactual.tme, self.procesoactual.tiempollegada, tiemporetorno, tiempoespera)
-          self.listaEjecucion.borrarHead()
-          self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante)
-          self.listaEspera.borrarHead()
-          threading.Thread(target=self.actualizarTerminados).start()
-          self.procesoactual = self.listaEjecucion.peekFront()
-          self.actualizarListos()
+          self.procesoactual.tiemposervicio += 1
+                  
+          # Si el TME llega a 0, pasar al siguiente proceso
+          if self.procesoactual.tiemposervicio == self.procesoactual.tme:
+            tiemporetorno = self.tiempo - self.procesoactual.tiempollegada + 1
+            tiempoespera = tiemporetorno - self.procesoactual.tme + 1
+            self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.procesoactual.tme, 0, self.procesoactual.tme, self.procesoactual.tiempollegada, tiemporetorno, tiempoespera)
+            self.listaEjecucion.borrarHead()
+            self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante)
+            self.listaEspera.borrarHead()
+            threading.Thread(target=self.actualizarTerminados).start()
+            self.procesoactual = self.listaEjecucion.peekFront()
+            self.actualizarListos()
+
+        else:
+          texto = "\nTodos los procesos \nhan terminado."
+          self.actualizarTextArea(self.ejecucion, texto)
+          return
+        
+        self.actualizarListos()
+
+        self.ventana.after(1000, self.actualizarEjecucion)  # Se ejecutará de nuevo en 1 segundo
 
       else:
-        texto = "\nTodos los procesos \nhan terminado."
-        self.actualizarTextArea(self.ejecucion, texto)
-        return
-      
-      self.actualizarListos()
-
-      self.ventana.after(1000, self.actualizarEjecucion)  # Se ejecutará de nuevo en 1 segundo
+        self.contador = 0
+        self.listaEspera.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiemposervicio, self.procesoactual.tiempollegada, self.procesoactual.tiemporetorno, self.procesoactual.tiempoespera)
+        self.listaEjecucion.borrarHead()
+        self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante)
+        self.procesoactual = self.listaEjecucion.peekFront()
+        self.listaEspera.borrarHead()
+        threading.Thread(target=self.actualizarListos).start()
+        self.actualizarEjecucion()
   
   def actualizarBloqueados(self):  #actualiza la interfaz de bloqueados
     texto = ""
