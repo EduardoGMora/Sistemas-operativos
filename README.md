@@ -53,3 +53,18 @@ pip install tkinter
 - [ProcesosClass.py](/Programa4/ProcesosClass.py)
 - [practica4.py](/Programa4/practica4.py)
 - [README.md](/Programa4/README.md)
+
+## [Programa 5](/Programa5/)
+
+
+## Bibliotecas necesarias:
+```sh
+pip install tkinter
+```
+
+### Archivos:
+- [LLClass.py](/Programa5/LLClass.py)
+- [MainP5.py](/Programa5/MainP5.py)
+- [ProcesosClass.py](/Programa5/ProcesosClass.py)
+- [VentanaClass.py](/Programa5/VentanaClass.py)
+- [README.md](/Programa5/README.md)
