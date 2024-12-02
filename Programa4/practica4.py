@@ -27,7 +27,8 @@ class Ventana:
     self.relojglobal.grid(row=0, column=8, padx=150)
 
     #label
-    etiqueta = tk.Label(ventana, text=f'Número de procesos: {listaNuevo.contar()}', font="arial 12")
+    self.numeroProcesos = listaNuevo.contar()
+    etiqueta = tk.Label(ventana, text=f'Número de procesos: {self.numeroProcesos}', font="arial 12")
     etiqueta.grid(row=0, column=0, pady=10)
     estado1 = tk.Label(ventana, text="NUEVO", font="arial 12")
     estado1.grid(row=1, column=0, pady=10)
@@ -103,7 +104,7 @@ class Ventana:
 
       if self.procesoactual is not None:
         self.procesoactual.tiemporestante -= 1
-        texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiemposervicio} segundos\n\n'
+        texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiemposervicio + 1 } segundos\n\n'
         
         self.actualizarTextArea(self.ejecucion, texto)
 
@@ -229,19 +230,16 @@ class Ventana:
       self.actualizarEjecucion()
 
   def crearNuevoproceso(self): # Agrega un nuevo proceso a la lista de espera
+    self.numeroProcesos += 1
     if self.listaNuevo.head is None:
-      temp = self.listaEjecucion.head
-      Id = temp.Id
-      while temp is not None:
-        if temp.Id > Id:
-          Id = temp.Id
-        temp = temp.next
-      Id += 1
-    else: Id = self.listaNuevo.tail.Id + 1
+      Id = self.numeroProcesos
+    else:
+      Id = self.listaNuevo.tail.Id + 1
+    
     
     tme = pc.Procesos.getTME()
     # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
-    self.listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme)
+    self.listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme, 0,self.tiempo)
 
     texto = ""
     temp = self.listaNuevo.head
@@ -254,7 +252,7 @@ class Ventana:
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
     self.actualizarTextArea(self.nuevo, texto)
 
-    return self.actualizarNuevos() if self.listaEjecucion.contar() < 5 and self.listaBloqueados.contar() == 0 else None
+    return self.actualizarNuevos() if self.listaEjecucion.contar() + self.listaBloqueados.contar() < 5 else None
   
   def showBCP(self): # Muestra el Bloque de Control de Procesos
     self.pausa()
@@ -294,7 +292,7 @@ class Ventana:
       temp = lista.head
       while temp is not None:
         if temp == self.listaEjecucion.head:
-          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiemporestante, temp.tiemposervicio, temp.tiempollegada, 'NULL', 'NULL', estado))
+          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tiemporestante, temp.tiemposervicio, temp.tiempollegada, 'NULL', 'NULL', 'Ejecución'))
         elif estado == "Nuevo":
           tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tme, 0, 0, 'NULL', 'NULL', estado))
         else:
@@ -303,7 +301,7 @@ class Ventana:
         temp = temp.next
 
     # Llenar la tabla BCP con los procesos de cada estado
-    agregar_filas(self.listaEjecucion, "Espera")
+    agregar_filas(self.listaEjecucion, "Listo")
     agregar_filas(self.listaNuevo, "Nuevo")
     agregar_filas(self.listaBloqueados, "Bloqueado")
     agregar_filas(self.listaTerminados, "Terminado")
