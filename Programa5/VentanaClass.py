@@ -28,7 +28,8 @@ class Ventana:
     self.relojglobal.grid(row=0, column=8, padx=150)
 
     #label
-    etiqueta = tk.Label(ventana, text=f'Número de procesos: {listaEspera.contar()}', font="arial 12")
+    self.numeroProcesos = listaEspera.contar()
+    etiqueta = tk.Label(ventana, text=f'Número de procesos: {self.numeroProcesos}', font="arial 12")
     etiqueta.grid(row=0, column=0, pady=10)
     estado1 = tk.Label(ventana, text="NUEVO", font="arial 12")
     estado1.grid(row=1, column=0, pady=10)
@@ -237,19 +238,14 @@ class Ventana:
       self.actualizarEjecucion()
 
   def crearNuevoproceso(self): # Agrega un nuevo proceso a la lista de espera
+    self.numeroProcesos += 1
     if self.listaNuevos.head is None:
-      temp = self.listaEspera.head
-      Id = temp.Id
-      while temp is not None:
-        if temp.Id > Id:
-          Id = temp.Id
-        temp = temp.next
-      Id += 1
+      Id = self.numeroProcesos + 1
     else: Id = self.listaNuevos.tail.Id + 1
     
     tme = pc.Procesos.getTME()
     # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
-    self.listaNuevos.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme)
+    self.listaNuevos.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme, 0, self.tiempo)
 
     texto = ""
     temp = self.listaNuevos.head
@@ -266,24 +262,31 @@ class Ventana:
     self.pausa()
     tabla = tk.Toplevel(self.ventana)
     tabla.title("Bloque de Control de Procesos")
-    tabla.geometry("700x400")
+    tabla.geometry("800x400")
 
     # Crear tabla
-    columnas = ("ID", "Operación", "TME", "Tiempo restante", "Tiempo Transcurrido", "Estado")
+    # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
+    columnas = ("ID", "Operación", "TME", "Tiempo restante", "Tiempo de servicio", "Tiempo Llegada", "Tiempo de Retorno", "Tiempo de espera", "Estado")
     tablaBCP = ttk.Treeview(tabla, columns=columnas, show="headings")
     
     tablaBCP.heading("ID", text="ID")
     tablaBCP.heading("Operación", text="Operación")
     tablaBCP.heading("TME", text="TME")
     tablaBCP.heading("Tiempo restante", text="Tiempo restante")
-    tablaBCP.heading("Tiempo Transcurrido", text="Tiempo Transcurrido")
+    tablaBCP.heading("Tiempo de servicio", text="Tiempo de servicio")
+    tablaBCP.heading("Tiempo Llegada", text="Tiempo Llegada")
+    tablaBCP.heading("Tiempo de Retorno", text="Tiempo de Retorno")
+    tablaBCP.heading("Tiempo de espera", text="Tiempo de espera")
     tablaBCP.heading("Estado", text="Estado")
 
     tablaBCP.column("ID", width=30)
     tablaBCP.column("Operación", width=100)
     tablaBCP.column("TME", width=50)
     tablaBCP.column("Tiempo restante", width=100)
-    tablaBCP.column("Tiempo Transcurrido", width=100)
+    tablaBCP.column("Tiempo de servicio", width=100)
+    tablaBCP.column("Tiempo Llegada", width=100)
+    tablaBCP.column("Tiempo de Retorno", width=100)
+    tablaBCP.column("Tiempo de espera", width=100)
     tablaBCP.column("Estado", width=100)
 
     tablaBCP.pack(fill="both", expand=True)
@@ -292,9 +295,7 @@ class Ventana:
     def agregar_filas(lista, estado):
       temp = lista.head
       while temp is not None:
-        if temp == self.listaEjecucion.head:
-          tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, temp.tme, temp.tiempoTranscurrido, "Ejecución"))
-        elif estado == "Nuevo":
+        if estado == "Nuevo":
           tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, 'NULL', 'NULL', estado))
         elif estado == "Terminado":
           tablaBCP.insert("", "end", values=(temp.Id, temp.operacion, temp.tme, 0, temp.tiempoTranscurrido, estado))
@@ -303,8 +304,9 @@ class Ventana:
         temp = temp.next
 
     # Llenar la tabla BCP con los procesos de cada estado
-    agregar_filas(self.listaEjecucion, "Espera")
-    agregar_filas(self.listaEspera, "Nuevo")
+    agregar_filas(self.listaNuevos, "Nuevo")
+    agregar_filas(self.listaEspera, 'Listo')
+    agregar_filas(self.listaEjecucion, "Ejecución")
     agregar_filas(self.listaBloqueados, "Bloqueado")
     agregar_filas(self.listaTerminados, "Terminado")
 
