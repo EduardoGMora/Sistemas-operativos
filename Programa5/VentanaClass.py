@@ -3,7 +3,6 @@ from tkinter import ttk
 from time import sleep
 import threading
 import ProcesosClass as pc
-import LLClass as ll
 
 
 class Ventana:
@@ -67,7 +66,8 @@ class Ventana:
   def actualizarNuevos(self):  #actualiza la interfaz de espera
     texto = ""
     if self.listaNuevos.head is not None:
-      self.listaEspera.agregarTail(self.listaNuevos.head.Id, self.listaNuevos.head.operacion, self.listaNuevos.head.tme, self.listaNuevos.head.tiempoTranscurrido)
+      # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
+      self.listaEspera.agregarTail(self.listaNuevos.head.Id, self.listaNuevos.head.operacion, self.listaNuevos.head.tme, self.listaNuevos.head.tiemporestante, 0, self.tiempo, 0, 0)
       self.listaNuevos.borrarHead()
 
     temp = self.listaNuevos.head
@@ -79,47 +79,52 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
 
-    self.actulizarTextArea(self.nuevo, texto)
+    self.actualizarTextArea(self.nuevo, texto)
 
   def actualizarListos(self):  #actualiza la interfaz de listos
     texto = ""
 
-    temp = self.listaEspera.head
-    while temp is not None:
-      temp.tiempoTranscurrido += 1
-      texto += f'{temp.Id}.- TME: {temp.tme}\n Tiempo Transcurrido: {temp.tiempoTranscurrido} \n\n'
-      temp = temp.next
+    try:
+      temp = self.listaEspera.head
+      while temp is not None:
+        temp.tiempoespera += 1
+        texto += f'{temp.Id}.- TME: {temp.tme}\n Tiempo de espera: {temp.tiempoespera} \n\n'
+        temp = temp.next
+    except AttributeError:
+      pass
 
     if texto == "":
       texto = "\nNo hay más procesos en listos."
     
-    self.actulizarTextArea(self.listos, texto)
+    self.actualizarTextArea(self.listos, texto)
 
   def actualizarEjecucion(self): #actualiza la interfaz de ejecución
     if not self.pausado:
       self.actualizarReloj()
 
       if self.procesoactual is not None:
-        self.procesoactual.tme -= 1  
-        texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiempoTranscurrido} segundos\n\n'
+        self.procesoactual.tiemporestante -= 1  
+        texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiemposervicio} segundos\n\n'
         
-        self.actulizarTextArea(self.ejecucion, texto)
+        self.actualizarTextArea(self.ejecucion, texto)
 
-        self.procesoactual.tiempoTranscurrido += 1
+        self.procesoactual.tiemposervicio += 1
                 
         # Si el TME llega a 0, pasar al siguiente proceso
-        if self.procesoactual.tme == 0:
-          self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.procesoactual.tme,self.procesoactual.tiempoTranscurrido)
+        if self.procesoactual.tiemposervicio == self.procesoactual.tme:
+          tiemporetorno = self.tiempo - self.procesoactual.tiempollegada + 1
+          tiempoespera = tiemporetorno - self.procesoactual.tme + 1
+          self.listaTerminados.agregarTail(self.procesoactual.Id, eval(self.procesoactual.operacion), self.procesoactual.tme, 0, self.procesoactual.tme, self.procesoactual.tiempollegada, tiemporetorno, tiempoespera)
           self.listaEjecucion.borrarHead()
-          self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiempoTranscurrido)
+          self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante)
           self.listaEspera.borrarHead()
+          threading.Thread(target=self.actualizarTerminados).start()
           self.procesoactual = self.listaEjecucion.peekFront()
-          self.actualizarTerminados()
           self.actualizarListos()
 
       else:
         texto = "\nTodos los procesos \nhan terminado."
-        self.actulizarTextArea(self.ejecucion, texto)
+        self.actualizarTextArea(self.ejecucion, texto)
         return
       
       self.actualizarListos()
@@ -137,19 +142,19 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay procesos bloqueados."
     
-    self.actulizarTextArea(self.bloqueados, texto)
+    self.actualizarTextArea(self.bloqueados, texto)
 
   def actualizarTerminados(self):  #actualiza la interfaz de terminados
     texto = ""
     temp = self.listaTerminados.head
 
     while temp is not None:
-      texto += f'{temp.Id}.- Resultado de la operación: {temp.operacion}\n Tiempo transcurrido -> {temp.tiempoTranscurrido}\n\n\n'
+      texto += f'{temp.Id}.- Resultado de la operación: {temp.operacion}\n Tiempo restante -> {temp.tiemporestante} \n Tiempo de Servicio -> {temp.tiemposervicio}\n Tiempo de llegada -> {temp.tiempollegada} \n Tiempo de espera -> {temp.tiempoespera}\n Tiempo de retorno -> {temp.tiemporetorno} \n\n\n'
       temp = temp.next
     
-    self.actualizarListos()
+    threading.Thread(target=self.actualizarListos).start()
     self.actualizarNuevos()
-    self.actulizarTextArea(self.terminado, texto)
+    self.actualizarTextArea(self.terminado, texto)
   
   def iniciar(self):
     self.boton.config(state=tk.DISABLED)
@@ -160,42 +165,50 @@ class Ventana:
     self.ventana.bind("<c>", lambda event: self.continuar())
     self.ventana.bind('<n>', lambda event: self.crearNuevoproceso())
     self.ventana.bind('<b>', lambda event: self.showBCP())
+
+
+    self.agregarProceso()
     
-    for _ in range(0,4):
-      if self.listaNuevos.head is not None:
-        self.listaEspera.agregarTail(self.listaNuevos.head.Id, self.listaNuevos.head.operacion, self.listaNuevos.head.tme, self.listaNuevos.head.tiempoTranscurrido)
-        self.listaNuevos.borrarHead()
-      
-    
-    self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiempoTranscurrido)
+    # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
+    self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante)
     self.procesoactual = self.listaEjecucion.peekFront()
     self.listaEspera.borrarHead()
 
     self.actualizarNuevos()
     self.actualizarEjecucion()
 
+  def agregarProceso(self): # Agrega un proceso a la lista de espera
+    for _ in range(0,4):
+      if self.listaNuevos.head is not None:
+        # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
+        self.listaEspera.agregarTail(self.listaNuevos.head.Id, self.listaNuevos.head.operacion, self.listaNuevos.head.tme, self.listaNuevos.head.tiemporestante)
+        self.listaNuevos.borrarHead()
+      else:
+        break
+
   def interrupcion(self): # Mueve el proceso actual a lista de bloqueados
     if self.procesoactual is not None:
-      self.listaBloqueados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme, self.procesoactual.tiempoTranscurrido + 8)
-      self.listaEjecucion.borrarHead()  # Eliminar el proceso de la lista de ejecución
+      self.listaBloqueados.agregarTail(self.procesoactual.Id, self.procesoactual.operacion, self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiemposervicio, self.procesoactual.tiempollegada, self.procesoactual.tiemporetorno + 8,self.procesoactual.tiempoespera)
       
       # Pasar al siguiente proceso
+      self.listaEjecucion.borrarHead()  # Eliminar el proceso de la lista de ejecución
+      self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante)
+      self.listaEspera.borrarHead()
       self.procesoactual = self.listaEjecucion.peekFront()
       self.actualizarEjecucion()
-      self.actualizarListos()
       self.actualizarBloqueados()
+      threading.Thread(target=self.actualizarListos).start()
       
       # Desbloquear proceso después de 8 segundos
       def desbloquear():
         sleep(8)
-        if self.listaBloqueados.head is not None:
-          desbloqueado = self.listaBloqueados.borrarHead()
-          self.listaEjecucion.agregarTail(desbloqueado.Id, desbloqueado.operacion, desbloqueado.tme, desbloqueado.tiempoTranscurrido)
-          if self.procesoactual is None:
-            self.procesoactual = self.listaEjecucion.peekFront()
-          self.actualizarEjecucion()
-          self.actualizarBloqueados()
-          self.actualizarListos()
+        desbloqueado = self.listaBloqueados.borrarHead()
+        self.listaEspera.agregarTail(desbloqueado.Id, desbloqueado.operacion, desbloqueado.tme, desbloqueado.tiempoTranscurrido)
+        if self.procesoactual is None:
+          self.procesoactual = self.listaEjecucion.peekFront()
+        self.actualizarBloqueados()
+        self.actualizarEjecucion()
+        self.actualizarListos()
       
       # Iniciar un hilo separado para manejar el desbloqueo
       threading.Thread(target=desbloquear).start()
@@ -207,6 +220,7 @@ class Ventana:
       self.listaTerminados.agregarTail(self.procesoactual.Id, "ERROR", self.procesoactual.tme, self.procesoactual.tiemporestante, self.procesoactual.tiemposervicio, self.procesoactual.tiempollegada, tiemporetorno, tiempoespera)
       threading.Thread(target=self.actualizarTerminados).start()
       self.listaEjecucion.borrarHead()
+      self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante)
       self.procesoactual = self.listaEjecucion.peekFront()
       self.listaEspera.borrarHead()
       threading.Thread(target=self.actualizarNuevos).start()
@@ -223,22 +237,22 @@ class Ventana:
       self.actualizarEjecucion()
 
   def crearNuevoproceso(self): # Agrega un nuevo proceso a la lista de espera
-    if self.listaNuevo.head is None:
-      temp = self.listaEjecucion.head
+    if self.listaNuevos.head is None:
+      temp = self.listaEspera.head
       Id = temp.Id
       while temp is not None:
         if temp.Id > Id:
           Id = temp.Id
         temp = temp.next
       Id += 1
-    else: Id = self.listaNuevo.tail.Id + 1
+    else: Id = self.listaNuevos.tail.Id + 1
     
     tme = pc.Procesos.getTME()
     # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
-    self.listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme)
+    self.listaNuevos.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme)
 
     texto = ""
-    temp = self.listaNuevo.head
+    temp = self.listaNuevos.head
 
     while temp is not None:
       texto += f'{temp.Id}.- {temp.operacion}\n TME: {temp.tme}\n\n'
@@ -299,7 +313,7 @@ class Ventana:
     self.tiempo += 1
     self.relojglobal.config(text=f"Reloj Global: {self.tiempo} segundos")
   
-  def actulizarTextArea(self, widget, texto):
+  def actualizarTextArea(self, widget, texto):
     widget.config(state=tk.NORMAL)
     widget.delete('1.0', tk.END)
     widget.insert(tk.END, texto)
