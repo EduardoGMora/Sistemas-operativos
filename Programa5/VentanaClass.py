@@ -6,7 +6,7 @@ import ProcesosClass as pc
 
 
 class Ventana:
-  def __init__(self, ventana, listaNuevos, listaEspera, listaEjecucion, listaBloqueados, listaTerminados, quantum):
+  def __init__(self, ventana, listaNuevos, listaEspera, listaEjecucion, listaBloqueados, listaTerminados, numeroProcesos, quantum):
     self.ventana = ventana          #atributos
     self.ventana.title("Procesamiento por lotes (First Come First Server)")
 
@@ -16,6 +16,7 @@ class Ventana:
     self.listaEjecucion = listaEjecucion
     self.listaBloqueados = listaBloqueados
     self.listaTerminados = listaTerminados
+    self.numeroProcesos = numeroProcesos
     self.quantum = quantum
     self.procesoactual = None       #inicializa el apuntador al proceso en ejecución
     
@@ -28,8 +29,7 @@ class Ventana:
     self.relojglobal.grid(row=0, column=8, padx=150)
 
     #label
-    self.numeroProcesos = listaEspera.contar()
-    etiqueta = tk.Label(ventana, text=f'Número de procesos: {self.numeroProcesos}', font="arial 12")
+    etiqueta = tk.Label(ventana, text=f'Número de procesos: {listaEspera.contar()}', font="arial 12")
     etiqueta.grid(row=0, column=0, pady=10)
     estado1 = tk.Label(ventana, text="NUEVO", font="arial 12")
     estado1.grid(row=1, column=0, pady=10)
@@ -80,6 +80,7 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
 
+    self.procesoactual = self.listaEjecucion.peekFront()
     self.actualizarTextArea(self.nuevo, texto)
 
   def actualizarListos(self):  #actualiza la interfaz de listos
@@ -240,12 +241,14 @@ class Ventana:
   def crearNuevoproceso(self): # Agrega un nuevo proceso a la lista de espera
     self.numeroProcesos += 1
     if self.listaNuevos.head is None:
-      Id = self.numeroProcesos + 1
-    else: Id = self.listaNuevos.tail.Id + 1
+      Id = self.numeroProcesos
+    else: 
+      Id = self.listaNuevos.tail.Id + 1
+    
     
     tme = pc.Procesos.getTME()
     # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
-    self.listaNuevos.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme, 0, self.tiempo)
+    self.listaNuevos.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme)
 
     texto = ""
     temp = self.listaNuevos.head

@@ -7,7 +7,7 @@ import ProcesosClass as pc
 import LLClass as ll
 
 class Ventana:
-  def __init__(self, ventana, listaNuevo, listaEjecucion, listaBloqueados, listaTerminados):
+  def __init__(self, ventana, listaNuevo, listaEjecucion, listaBloqueados, listaTerminados, numeroProcesos):
     self.ventana = ventana          #atributos
     self.ventana.title("Procesamiento por lotes (First Come First Server 2)")
 
@@ -16,6 +16,7 @@ class Ventana:
     self.listaEjecucion = listaEjecucion
     self.listaBloqueados = listaBloqueados
     self.listaTerminados = listaTerminados
+    self.numeroProcesos = numeroProcesos
     self.procesoactual = None       #inicializa el apuntador al proceso en ejecución
     
     # atributos de ayuda
@@ -27,8 +28,7 @@ class Ventana:
     self.relojglobal.grid(row=0, column=8, padx=150)
 
     #label
-    self.numeroProcesos = listaNuevo.contar()
-    etiqueta = tk.Label(ventana, text=f'Número de procesos: {self.numeroProcesos}', font="arial 12")
+    etiqueta = tk.Label(ventana, text=f'Número de procesos: {listaNuevo.contar()}', font="arial 12")
     etiqueta.grid(row=0, column=0, pady=10)
     estado1 = tk.Label(ventana, text="NUEVO", font="arial 12")
     estado1.grid(row=1, column=0, pady=10)
@@ -79,6 +79,7 @@ class Ventana:
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
 
+    self.procesoactual = self.listaEjecucion.peekFront()
     self.actualizarTextArea(self.nuevo, texto)
 
   def actualizarListos(self):  #actualiza la interfaz de listos
@@ -239,7 +240,7 @@ class Ventana:
     
     tme = pc.Procesos.getTME()
     # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
-    self.listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme, 0,self.tiempo)
+    self.listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), tme, tme)
 
     texto = ""
     temp = self.listaNuevo.head
@@ -336,13 +337,14 @@ def main():
          print('\nEntrada no válida. Por favor ingrese un número entero válido.')
   
   #hacer autocremental el Id
+  nprocesos = nprocesos()
   Id = 0
-  for _ in range(nprocesos()):
+  for _ in range(nprocesos):
     Id += 1
     listaNuevo.agregarTail(Id, pc.Procesos.getOperacion(), pc.Procesos.getTME(), 0)
 
   ventana = tk.Tk()
-  app = Ventana(ventana, listaNuevo, listaEjecucion, listaBloqueados, listaTerminados)
+  app = Ventana(ventana, listaNuevo, listaEjecucion, listaBloqueados, listaTerminados, nprocesos)
   ventana.mainloop()
 
 if __name__ == "__main__":
