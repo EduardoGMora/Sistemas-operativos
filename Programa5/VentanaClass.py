@@ -109,7 +109,7 @@ class Ventana:
         self.contador += 1
         if self.procesoactual is not None:
           self.procesoactual.tiemporestante -= 1  
-          texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiemposervicio} segundos\n\n'
+          texto = f'{self.procesoactual.Id}.- {self.procesoactual.operacion}\n TME: {self.procesoactual.tme} \nTiempo de ejecución: {self.procesoactual.tiemposervicio + 1} segundos\n\n'
           
           self.actualizarTextArea(self.ejecucion, texto)
 
