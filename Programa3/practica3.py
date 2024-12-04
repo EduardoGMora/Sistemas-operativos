@@ -25,9 +25,8 @@ class Ventana:
     self.relojglobal = tk.Label(ventana, text=f"Reloj Global: {self.tiempo}")
     self.relojglobal.grid(row=0, column=8, padx=150)
 
-    #label
-    self.numeroProcesos = listaEspera.contar()
-    etiqueta = tk.Label(ventana, text=f'Número de procesos: {self.numeroProcesos}', font="arial 12")
+    #labels
+    etiqueta = tk.Label(ventana, text=f'Número de procesos: {listaEspera.contar()}', font="arial 12")
     etiqueta.grid(row=0, column=0, pady=10)
     estado1 = tk.Label(ventana, text="NUEVO", font="arial 12")
     estado1.grid(row=1, column=0, pady=10)
@@ -163,6 +162,7 @@ class Ventana:
     self.ventana.bind("<c>", lambda event: self.continuar())
 
     self.agregarProceso()
+    self.actualizarNprocesos()
 
     self.actualizarNuevos()
     self.actualizarEjecucion()
@@ -227,6 +227,9 @@ class Ventana:
   def actualizarReloj(self):
     self.tiempo += 1
     self.relojglobal.config(text=f"Reloj Global: {self.tiempo} segundos")
+
+  def actualizarNprocesos(self):
+    self.etiqueta.config(text=f'Número de procesos: {self.listaEspera.contar()}')
 
   def actualizarTextArea(self, widget, texto):
     widget.config(state=tk.NORMAL)

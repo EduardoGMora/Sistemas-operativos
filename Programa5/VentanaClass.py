@@ -30,8 +30,10 @@ class Ventana:
     self.relojglobal.grid(row=0, column=8, padx=150)
 
     #label
-    etiqueta = tk.Label(ventana, text=f'Número de procesos: {listaEspera.contar()}', font="arial 12")
+    etiqueta = tk.Label(ventana, text=f'Número de procesos: {listaNuevos.contar()}', font="arial 12")
     etiqueta.grid(row=0, column=0, pady=10)
+    labelquantum = tk.Label(ventana, text=f'Quantum: {self.quantum}', font="arial 12")
+    labelquantum.grid(row=0, column=2, pady=10)
     estado1 = tk.Label(ventana, text="NUEVO", font="arial 12")
     estado1.grid(row=1, column=0, pady=10)
     estado2 = tk.Label(ventana, text="LISTOS", font="arial 12")
@@ -183,6 +185,7 @@ class Ventana:
 
 
     self.agregarProceso()
+    self.actualizarNprocesos()
     
     # Id, operacion, tme, tiemporestante, tiemposervicio = 0, tiempollegada = 0, tiemporetorno = 0, tiempoespera = 0
     self.listaEjecucion.agregarTail(self.listaEspera.head.Id, self.listaEspera.head.operacion, self.listaEspera.head.tme, self.listaEspera.head.tiemporestante)
@@ -272,7 +275,9 @@ class Ventana:
     
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
+      
     self.actualizarTextArea(self.nuevo, texto)
+    self.actualizarNprocesos()
   
   def showBCP(self): # Muestra el Bloque de Control de Procesos
     self.pausa()
@@ -326,10 +331,12 @@ class Ventana:
     agregar_filas(self.listaBloqueados, "Bloqueado")
     agregar_filas(self.listaTerminados, "Terminado")
 
-
   def actualizarReloj(self):
     self.tiempo += 1
     self.relojglobal.config(text=f"Reloj Global: {self.tiempo} segundos")
+
+  def actualizarNprocesos(self):
+    self.etiqueta.config(text=f'Número de procesos: {self.listaNuevos.contar()}')
   
   def actualizarTextArea(self, widget, texto):
     widget.config(state=tk.NORMAL)

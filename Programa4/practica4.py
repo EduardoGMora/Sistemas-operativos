@@ -168,6 +168,7 @@ class Ventana:
     self.ventana.bind('<b>', lambda event: self.showBCP())
     
     self.agregarProceso()
+    self.actualizarNprocesos()
 
     self.actualizarNuevos()
     self.actualizarEjecucion()
@@ -251,7 +252,9 @@ class Ventana:
     
     if texto == "":
       texto = "\nNo hay más procesos en espera."  # Si no hay más lotes
+
     self.actualizarTextArea(self.nuevo, texto)
+    self.actualizarNprocesos()
 
     return self.actualizarNuevos() if self.listaEjecucion.contar() + self.listaBloqueados.contar() < 5 else None
   
@@ -311,6 +314,9 @@ class Ventana:
   def actualizarReloj(self):
     self.tiempo += 1
     self.relojglobal.config(text=f"Reloj Global: {self.tiempo} segundos")
+
+  def actualizarNprocesos(self):
+    self.etiqueta.config(text=f'Número de procesos: {self.listaNuevo.contar()}')
   
   def actualizarTextArea(self, widget, texto):
     widget.config(state=tk.NORMAL)
